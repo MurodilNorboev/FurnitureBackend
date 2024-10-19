@@ -1,1 +1,3 @@
-export const TODO = '/todo';
+export class API_CONSTANTS {
+    static TODO = "/todo"
+}

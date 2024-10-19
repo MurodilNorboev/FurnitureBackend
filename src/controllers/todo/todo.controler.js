@@ -1,37 +1,47 @@
-import { v4 } from 'uuid';
-const todo = [];
+import { Todo } from "../../models/todo/todo.model.js";
 
-export const todoadd = ( req, res) => {
+export const todoadd = async ( req, res) => {
+    try {
     const {title, desc} = req.body;
-    todo.push({id: v4(),title, desc})
-    res.status(201).json({ success: true, todo })
-    console.log(title, desc);
+
+    const new_todo = await Todo.create({ title, desc })
+
+    res.status(201).json({ success: true, new_todo })
+    } catch (error) {
+        console.log(error)
+    }
 };
-export const edit = ( req, res ) => { 
+export const edit = async ( req, res ) => { 
     const {title, desc } = req.body;
-    const { id } = req.body;
-    const index = todo.findIndex((value) => value.id === id)
-    todo.splice(index,1,{id, title, desc})
-    res.status(200).json({ success: true, todo })
-};
-export const get_id = ( req, res ) => {
     const { id } = req.params;
-    const data = todo.find((val) => val.id === id)
+
+    const data = await Todo.findByIdAndUpdate(id, {title,desc}, { new: true });
+
+    res.status(200).json({ success: true, data });
+};
+export const get_id = async ( req, res ) => {
+    const { id } = req.params;
+    const data = await Todo.findById(id);
     res.status(200).json({ success: true, data})
 };
-export const get_all = ( req, res ) => {
+export const get_all = async ( req, res ) => {
     const { search } = req.query;
-    const data = todo.filter((val) => val.title === search)
+    const query = {
+        $or : []
+    }
+    if (search) {
+        query.$or.push(
+            {title: {$regex: search, $options: 'i'}},
+            {desc: {$regex: search, $options: 'i'}})
+    }
+
+    const data = await Todo.find(query);
+
     res.status(200).json({ success: true, data })
 };
-export const delet = ( req, res ) => {
-    const { delet } = req.params;
-    const  data = todo.findIndex((val) => val.id === delet );
-    const deletes = todo.splice(data, 1 )
-     if (deletes.length > 0 ) {
-        console.log("element ochirilidi"); // element ochirlganini terminalda korsatish !
-     } else {
-        console.log("element ochirilmadi !"); // elemtn ovhirilmaganini terminla da korsatish !
-     }
-    res.status(200).json({ success: true, data})
+export const delet = async ( req, res ) => {
+    const { id } = req.params;
+    await Todo.findByIdAndDelete(id);
+    
+    res.status(200).json({ success: true, data, msg:"successfull file" },)
 };

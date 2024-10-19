@@ -6,4 +6,4 @@ router.post('/add', todoadd );
 router.put('/edit/:id', edit );
 router.get('/get/:id', get_id );
 router.get('/get-all/', get_all );
-router.get('/delet/:id', delet );
+router.delete('/delete/:id', delet );
