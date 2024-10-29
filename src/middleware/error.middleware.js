@@ -18,10 +18,6 @@ export const errorMiddleware = (error, req, res, next) => {
             }
         })
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            succes: false, 
-            msg: ReasonPhrases.BAD_GATEWAY,
-        })
-     return next(error)   
+      return next(error)   
     }
 }
