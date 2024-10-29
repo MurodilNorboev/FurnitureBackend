@@ -3,6 +3,7 @@ import { PORT } from "./utils/secrets.js"; // secret dan olinib kelinyapti !
 import { Routes } from "./routes/index.js"; // barcha malumotlarni bir joyga jamlangan joydan kelayapti !
 import { MONGODB_CONNECT } from "./utils/datamase.config.js";
 import corst from "cors";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const server = express(); // server chaqirip olindi !
 
@@ -15,6 +16,8 @@ server.use(corst({}));
 Routes.forEach((item) => {
   server.use(item.path, item.router); // har birini korib chiqish uchun foreach dan foydalandik !
 });
+
+server.use(errorMiddleware);
 
 server.listen(PORT, () => {
   console.log(`Server Run ${PORT}!`); // PORTni .env dan olip kelayapman va gitignore filega joyladim malumotlarni saqlab qolish uchun !

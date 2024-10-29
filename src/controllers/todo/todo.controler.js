@@ -1,16 +1,15 @@
+import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
 import { Todo } from "../../models/todo/todo.model.js";
+import { HttpExceptiion } from "../../utils/http.exception.js";
+import { StatusCodes,ReasonPhrases }  from 'http-status-codes'
 
-export const todoadd = async ( req, res) => {
-    try {
+export const todoadd = asyncHandler(async ( req, res) => {
     const {title, desc} = req.body;
 
     const new_todo = await Todo.create({ title, desc })
 
     res.status(201).json({ success: true, new_todo })
-    } catch (error) {
-        console.log(error)
-    }
-};
+})
 export const edit = async ( req, res ) => { 
     const {title, desc } = req.body;
     const { id } = req.params;
@@ -19,11 +18,19 @@ export const edit = async ( req, res ) => {
 
     res.status(200).json({ success: true, data });
 };
-export const get_id = async ( req, res ) => {
+export const get_id = asyncHandler(async ( req, res ) => {
     const { id } = req.params;
+
     const data = await Todo.findById(id);
-    res.status(200).json({ success: true, data})
-};
+    if (!data) {
+        throw new HttpExceptiion(
+            StatusCodes.NOT_FOUND,
+            ReasonPhrases.NOT_FOUND,
+        "Todo not found!" )
+    }
+
+    res.status(StatusCodes.OK).json({ success: true, data})
+})
 export const get_all = async ( req, res ) => {
     const { search } = req.query;
     const query = {
