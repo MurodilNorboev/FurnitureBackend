@@ -37,7 +37,7 @@ export class UserController {
                 ReasonPhrases.UNAUTHORIZED, 
                 "Invalid login credentials!")
         }
-        if (HashingHelper.comparePassword(password, user.password)) {
+        if (!HashingHelper.comparePassword(password, user.password)) {
             throw new HttpException(
                 StatusCodes.UNAUTHORIZED, 
                 ReasonPhrases.UNAUTHORIZED, 
@@ -49,7 +49,11 @@ export class UserController {
         res.status(StatusCodes.OK).json({success: true, access_token})
     });
 
-    static getprofile = asyncHandler( async (req, res) => {})
+    static getprofile = asyncHandler( async (req, res) => {
+        console.log(1);
+        res.status(StatusCodes.OK).json({success: true})
+        
+    })
 
 }
 
