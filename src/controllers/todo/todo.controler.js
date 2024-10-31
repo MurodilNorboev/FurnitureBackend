@@ -1,6 +1,6 @@
 import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
 import { Todo } from "../../models/todo/todo.model.js";
-import { HttpExceptiion } from "../../utils/http.exception.js";
+import { HttpException } from "../../utils/http.exception.js";
 import { StatusCodes,ReasonPhrases }  from 'http-status-codes'
 
 export const todoadd = asyncHandler(async ( req, res) => {
@@ -23,7 +23,7 @@ export const get_id = asyncHandler(async ( req, res ) => {
 
     const data = await Todo.findById(id);
     if (!data) {
-        throw new HttpExceptiion(
+        throw new HttpException(
             StatusCodes.NOT_FOUND,
             ReasonPhrases.NOT_FOUND,
         "Todo not found!" )
