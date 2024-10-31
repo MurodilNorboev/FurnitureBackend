@@ -3,7 +3,7 @@ import { Todo } from "../../models/todo/todo.model.js";
 import { HttpException } from "../../utils/http.exception.js";
 import { StatusCodes,ReasonPhrases }  from 'http-status-codes'
 
-export const todoadd = asyncHandler(async ( req, res) => {
+export const todoadd =  asyncHandler(async ( req, res) => {
     const {title, desc} = req.body;
 
     const new_todo = await Todo.create({ title, desc })

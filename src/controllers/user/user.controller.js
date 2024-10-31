@@ -44,17 +44,18 @@ export class UserController {
                 "Invalid login credentials!")
         }
 
-        const access_token = JwtHelper.sign(user._id)
+        const access_token = await JwtHelper.sign(user._id)
 
         res.status(StatusCodes.OK).json({success: true, access_token})
     });
 
     static getprofile = asyncHandler( async (req, res) => {
-        console.log(1);
-        res.status(StatusCodes.OK).json({success: true})
+        console.log(req.body.user);
+        res.status(StatusCodes.OK).json({success: true, data: req.body.user })
         
     })
 
 }
 
+/// bu otilgan signup la auftikatsiya deyladi
 

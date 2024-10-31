@@ -3,6 +3,7 @@ export const router = Router();
 import { delet, edit, get_all, get_id, todoadd } from '../../controllers/todo/todo.controler.js';
 import { validate } from '../../validator/validator.js';
 import { addV, updataV } from '../../validator/todo/todo.validator.js';
+import { auth } from '../../middleware/auts.middleware.js'
 
 // const test = (req, res, next) => {   bunda misol qilingan midl ver lar haqida 
 //     console.log(req.body);  
@@ -16,9 +17,9 @@ import { addV, updataV } from '../../validator/todo/todo.validator.js';
 //     next() 
 // } /// 
 
-router.post('/add', addV(), validate, todoadd );   
-router.put('/edit/:id', updataV(), validate, edit );   // atalishi body 
-router.get('/get/:id', get_id );
+router.post('/add', auth, addV(), validate, todoadd );   
+router.put('/edit/:id', auth, updataV(), validate, edit );   // atalishi body 
+router.get('/get/:id', auth, get_id );
 router.get('/get-all/', get_all );
-router.delete('/delete/:id', delet );
+router.delete('/delete/:id', auth, delet );
 
