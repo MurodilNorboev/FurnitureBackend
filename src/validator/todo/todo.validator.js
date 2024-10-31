@@ -17,27 +17,24 @@ export const updataV = () => [
 export const signupV = () => [
     body('full_name','Full name is required').notEmpty(),
     body('phone_number', 'Phone number is required').isMobilePhone(),
-    body('email','INvalid email').isEmail(),
-    body('password', 'Password must be at least 6 characters').isLength({ min: 6, max: 20 }),
-    body('password', 'Password must be between 8 and 20 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.')
+    body('email','Invalid email').isEmail(),
+    body('password', 'Password is requared!')
     .isLength({ min: 8, max: 20 }) 
-    .matches(/[A-Z]/) 
-    .matches(/[a-z]/) 
-    .matches(/[0-9]/) 
-    .matches(/[!@#$%^&*(),.?":{}|<>]/) 
+    // .matches(['A'])
+    // .matches(['a'])
+    // .matches([0,9])
+    // .matches(['!@#$%^&*(),.?":{}|<>']) 
 ]
 
 export const loginV = () => [
     body('email', 'Invalid Email')
     .isEmail()
-    .matches(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)
+    .matches('[a-zA-Z0-9._%+-]+@gmail\.com$')
     .withMessage('Only Gmail emails are allowed'),
-
-    body('password', 'password is requared').notEmpty(),
-    body('password', 'Password must be between 8 and 20 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.')
+    body('password', 'Password is requared!')
     .isLength({ min: 8, max: 20 }) 
-    .matches(/[A-Z]/) 
-    .matches(/[a-z]/) 
-    .matches(/[0-9]/) 
-    .matches(/[!@#$%^&*(),.?":{}|<>]/) 
+    // .matches([0])
+    // .matches(['A'])
+    // .matches(['a'])
+    // .matches(['!@#$%^&*()_'])
 ]

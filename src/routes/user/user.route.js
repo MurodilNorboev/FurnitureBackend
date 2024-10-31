@@ -6,6 +6,11 @@ import { validate } from "uuid";
 
 export const router = Router();
 
-router.post("/sign-up", signupV(), validate, UserController.signUp);
-router.post("/login", loginV(), validate, UserController.login);
-router.get("/me", auth, validate, UserController.getprofile);
+router.post("/sign-up", signupV(),  UserController.signUp);
+router.post("/login", loginV(), UserController.login);
+router.get("/me", auth, UserController.getprofile);
+
+
+
+/// sign up da muammo bor!
+/// loginda faqat m dan boshlanayapti buni togirlash kerak !
