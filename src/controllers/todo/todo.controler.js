@@ -4,9 +4,10 @@ import { HttpException } from "../../utils/http.exception.js";
 import { StatusCodes,ReasonPhrases }  from 'http-status-codes'
 
 export const todoadd =  asyncHandler(async ( req, res) => {
-    const {title, desc} = req.body;
+    const {title, desc, image} = req.body;
 
-    const new_todo = await Todo.create({ title, desc })
+    const new_todo = await Todo.create({ title, desc, image })
+    
 
     res.status(201).json({ success: true, new_todo })
 })

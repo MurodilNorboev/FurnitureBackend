@@ -5,6 +5,30 @@ import { validate } from '../../validator/validator.js';
 import { addV, updataV } from '../../validator/todo/todo.validator.js';
 import { auth } from '../../middleware/auts.middleware.js'
 
+router.post('/add', auth, addV(), validate, todoadd );   
+router.put('/edit/:id', auth, updataV(), validate, edit );   // atalishi body  // almashtirish
+router.get('/get/:id', auth, get_id );
+router.get('/get-all/', get_all );
+router.delete('/delete/:id', auth, delet );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // const test = (req, res, next) => {   bunda misol qilingan midl ver lar haqida 
 //     console.log(req.body);  
 //     const { title, desc } = req.body
@@ -16,10 +40,3 @@ import { auth } from '../../middleware/auts.middleware.js'
 //     }
 //     next() 
 // } /// 
-
-router.post('/add', auth, addV(), validate, todoadd );   
-router.put('/edit/:id', auth, updataV(), validate, edit );   // atalishi body  // almashtirish
-router.get('/get/:id', auth, get_id );
-router.get('/get-all/', get_all );
-router.delete('/delete/:id', auth, delet );
-
