@@ -1,0 +1,99 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "API for Todo app",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:8081"
+      }
+    ],
+    "paths": {
+      "/user/sign-up": {
+        "post": {
+          "tags": ["USER"],
+          "description": "Sign up user",
+          "summary": "Sign up user",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "full_name": {
+                      "type": "string",
+                      "example": "Murodil"
+                    },
+                    "phone_number": {
+                      "type": "string",
+                      "example": "+8210-5714-7887"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "norboyevmurodil4@gmail.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "!Aa1234" 
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {}
+        }
+      },
+      "/user/login": {
+        "post": {
+          "tags": ["USER"],
+          "description": "Login user",
+          "summary": "Login user",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "norboyevmurodil4@gmail.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "!Aa1234" 
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {}
+        }
+      },
+      "/user/me": {
+        "get": {
+          "tags": ["USER"],
+          "security": [
+            {
+                "BearerAuth": []
+            }
+          ],
+          "description": "Get projile data",
+          "summary": "Get projile data",
+          "responses": {}
+        }
+      }
+    },
+    "components": {
+      "securitySchemes": {
+        "BearerAuth": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      }
+    }
+  }
+  
+  
