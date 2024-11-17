@@ -4,7 +4,7 @@ import { HttpException } from '../utils/http.exception.js';
 import { StatusCodes } from 'http-status-codes';
 
 const CheckFileType = (file, cb) => {
-    const fileTypes = /jpeg|png|svg|webp|avif/;
+    const fileTypes = /jpeg|png|svg|webp|avif|jpg/;
     const exname = fileTypes.test(path.extname(file.originalname)?.toLowerCase());
     const mimeType = fileTypes.test(file.mimetype); 
 

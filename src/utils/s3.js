@@ -5,8 +5,8 @@ const news3Client = new S3Client({
     region: 'ru-1',
     endpoint: 'https://s3.timeweb.cloud',
     credentials: {
-        accessKeyId: 'fjsdkfjdsjf',
-        secretAccessKey: 'sfsdjfsjdfjdsf'
+        accessKeyId: '08NHRLH3VLWTPOBK4F56',
+        secretAccessKey: 'bdc3s2ZOQUfwsCsROWVJRhmB4ECaagi9pTU6xcXr'
     },
 });
 
@@ -15,14 +15,15 @@ export const sendFile = async (buffer, key) => {
         const upload = new Upload({
             client: news3Client,
             params: {
-                Bucket: 'name s3 dagi name keladi!',
+                Bucket: 'bc53f73a-todo',
                 Key: key,
                 Body: buffer,
             },
         })
 
         const data = await upload.done()
-
+        console.log(data);
+        
         if (data.$metadata.httpStatusCode === 200) {
             return data.Location;
         }
