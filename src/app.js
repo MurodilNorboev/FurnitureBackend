@@ -32,4 +32,3 @@ server.use(errorMiddleware);
 server.listen(PORT, () => {
   console.log(`Server Run ${PORT}!`); // PORTni .env dan olip kelayapman va gitignore filega joyladim malumotlarni saqlab qolish uchun !
 });
-

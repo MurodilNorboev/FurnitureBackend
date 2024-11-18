@@ -199,3 +199,10 @@
 // server.listen(3005, () => {
 //     console.log("Server Run!"); // terminalda chiqadi !
 // })
+
+
+// PORT=8081
+// DB_URL=mongodb://127.0.0.1:27017/todo
+// ENVIROVMENT=development
+// REG_KEY=sdfkjsdkfjkdsjfkdsjkfjdf 
+// JWT_SECRET=sdfkjsdkfjkdsjfkdsjkfjdf 
