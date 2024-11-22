@@ -5,7 +5,7 @@ import { loginV, signupV } from "../../validator/todo/todo.validator.js";
 import { validate } from "uuid";
 
 export const router = Router();
-
-router.post("/sign-up", signupV(),  UserController.signUp);
-router.post("/login", loginV(),   UserController.login);
+///validate,
+router.post("/sign-up", signupV(),   UserController.signUp);
+router.post("/login", loginV(), validate,   UserController.login);
 router.get("/me", auth, UserController.getprofile);

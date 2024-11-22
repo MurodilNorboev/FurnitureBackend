@@ -1,5 +1,4 @@
 import { connect } from "mongoose";
-
 import { DB_URL } from '../utils/secrets.js';
 
 export const MONGODB_CONNECT = async () => {
