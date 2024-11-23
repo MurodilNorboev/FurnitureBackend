@@ -7,5 +7,5 @@ import { validate } from "uuid";
 export const router = Router();
 ///validate,
 router.post("/sign-up", signupV(),   UserController.signUp);
-router.post("/login", loginV(), validate,   UserController.login);
+router.post("/login", loginV(),   UserController.login);
 router.get("/me", auth, UserController.getprofile);
