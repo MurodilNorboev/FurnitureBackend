@@ -18,11 +18,13 @@ export class UserController {
                 "This email already used!"
             )
         }
+        
 
         await User.create({
             full_name, 
             phone_number, 
-            email, password: await HashingHelper.generatePassword(password)})
+            email, 
+            password: await HashingHelper.generatePassword(password)})
 
         res.status(StatusCodes.CREATED).json({success: true, msg: "Successfully sign up!"});
     });
@@ -50,11 +52,50 @@ export class UserController {
     });
 
     static getprofile = asyncHandler( async (req, res) => {
-        console.log(req.body.user);
-        res.status(StatusCodes.OK).json({success: true, data: req.body.user })
-        
+        const data = req.body.user; 
+        if (!data) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+                success: false,
+                message: "Foydalanuvchi topilmadi",
+            });
+        }
+        res.status(StatusCodes.OK).json({success: true, data })
     })
 
+    ////
+    static getUserCount = asyncHandler(async (req, res) => {
+        const UserCount = await User.countDocuments(); // Umumiy foydalanuvchi soni
+        const LoggedInUserCount = await User.countDocuments({ lastLogin: { $ne: null } }); // Faqat logindan o'tgan foydalanuvchilar
+      
+        res.status(StatusCodes.OK).json({
+          success: true,
+          UserCount,
+          LoggedInUserCount, // Logindan o'tgan foydalanuvchi soni
+        });
+      });
+      
+    static getAllUsers = asyncHandler(async (req, res) => {
+        const { page = 1, limit = 10 } = req.query;
+        
+        // Foydalanuvchilarni vaqti bilan tartiblash
+        const users = await User.find({}, '-password')
+                                .skip((page - 1) * limit)
+                                .limit(Number(limit))
+                                .sort({ createdAt: -1 }); // Yangi foydalanuvchilarni birinchi qilib tartiblash
+                                
+        const totalUsers = await User.countDocuments();
+        const totalLoggedInUsers = await User.countDocuments({ lastLogin: { $ne: null } });
+      
+        res.status(StatusCodes.OK).json({
+          success: true,
+          users,
+          totalUsers,
+          totalLoggedInUsers, 
+          totalPages: Math.ceil(totalUsers / limit),
+          currentPage: Number(page),
+        });
+    });
+      
 }
 
 /// bu otilgan signup la auftikatsiya deyladi

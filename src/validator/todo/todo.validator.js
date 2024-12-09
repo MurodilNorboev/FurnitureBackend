@@ -8,6 +8,11 @@ export const addV = () => [ // isIn faqat sa va ba qabul qiladi yoki 1 va 2 ni q
    body("desc", "Desc must be a stringd!").isString(),
 ];
 
+export const EventAddV = () => [
+    body("titles", "Titles is requared. ").notEmpty(),
+    body("titles", "Titles must be a stringd!").isString()
+]
+
 export const updataV = () => [
     param('id', 'Id is MongoID').isMongoId(),
     body("title", "Title must be a string!").optional().isString(),
@@ -48,4 +53,9 @@ export const loginV = () => [
         .withMessage('Only Gmail emails are allowed'),
     body('password', 'Password is required!')
         .isLength({ min: 8, max: 20 })
-]
+];
+
+export const addCartV = () => [
+    body("car_id", "Car ID is MongoID")
+];
+

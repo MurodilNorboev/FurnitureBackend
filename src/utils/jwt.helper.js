@@ -2,6 +2,7 @@ import pkg from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 dotenv.config(); 
+
 const { sign, verify } = pkg;
 const JWT_SECRET = process.env.JWT_SECRET; 
 

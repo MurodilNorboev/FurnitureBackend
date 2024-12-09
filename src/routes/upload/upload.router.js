@@ -4,4 +4,4 @@ import { UploadMulter} from "../../utils/multer.js";
 
 export const UploadRouter = Router()
 
-UploadRouter.post("/file", UploadMulter.single("image"), uploadFile)
+UploadRouter.post("/", UploadMulter.single("file"), uploadFile)
