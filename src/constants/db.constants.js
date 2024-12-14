@@ -4,4 +4,6 @@ export class DB_CONSTANTS {
     static UPLOAD = "upload";
     static MY_CART = "my_cart";
     static EVENT = "event";
+    static SESSIONS = "sessions";
+    static USERFUR = "userFur"
 }

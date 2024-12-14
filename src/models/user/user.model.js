@@ -20,14 +20,6 @@ export const userSchema = new Schema({
         required: true, 
         select: false 
     },
-    lastLogin: {
-        type: Date,
-        default: null, 
-      },
-      createdAt: {
-        type: Date,
-        default: Date.now,
-      },
 },
 {timestamps: {createdAt:'sana',updatedAt:'yangilanish'}, versionKey: false}
 );

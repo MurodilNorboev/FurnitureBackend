@@ -8,7 +8,12 @@ import { JwtHelper } from "../../utils/jwt.helper.js";
 export class UserController {
 
     static signUp = asyncHandler( async (req, res) => {
-        const {full_name, phone_number, email, password} = req.body
+        const {
+            full_name, 
+            phone_number, 
+            email, 
+            password,
+        } = req.body;
 
         const user = await User.findOne({ email })
         if(user) {
@@ -24,7 +29,7 @@ export class UserController {
             full_name, 
             phone_number, 
             email, 
-            password: await HashingHelper.generatePassword(password)})
+            password: await HashingHelper.generatePassword(password)}),
 
         res.status(StatusCodes.CREATED).json({success: true, msg: "Successfully sign up!"});
     });
@@ -94,8 +99,7 @@ export class UserController {
           totalPages: Math.ceil(totalUsers / limit),
           currentPage: Number(page),
         });
-    });
-      
+    });  
 }
 
 /// bu otilgan signup la auftikatsiya deyladi
