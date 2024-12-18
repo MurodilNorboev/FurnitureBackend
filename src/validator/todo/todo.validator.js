@@ -23,10 +23,12 @@ export const signupV = () => [
     body('full_name', 'Full name is required').notEmpty(),
     body('email', 'Invalid email')
         .isEmail()
-        // .matches(/^[a-zA-Z0-3._%+-?]+@gmail\.com$/)
         .matches(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)
         .withMessage('Only Gmail emails are allowed'),
-    body('phone_number', 'Phone number is required').isMobilePhone(),
+        body('phone_number', 'Phone number is required')
+        .notEmpty().withMessage('Phone number is required')
+        .isMobilePhone().withMessage('Invalid phone number format')
+        .matches(/^\+010|\+8210|\+998\d{7,11}$/).withMessage('Phone number must start with +010, +8210, or +998 and be between 9 and 15 digits'),
     body('password', 'Password is required!')
         .isLength({ min: 8, max: 20 })
         .custom(value => {

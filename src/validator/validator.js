@@ -1,17 +1,13 @@
 import { validationResult } from 'express-validator';
 
 export const validate = (req, res, next) => {
-const errors = validationResult(req)
+    const errors = validationResult(req);
 
-if ( errors.isEmpty()) {
-    return next()
-}
-let messages = ''
+    if (errors.isEmpty()) {
+        return next(); 
+    }
 
-errors.array().map((err) => {
-    messages += err.msg + '';
-});
+    const messages = errors.array().map(err => err.msg).join(', '); 
 
-return res.status(422).json({success: false, error: { messages }})
-
+    return res.status(422).json({ success: false, error: { messages } });
 }

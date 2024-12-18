@@ -3,7 +3,7 @@ import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
 import { HttpException } from "../../utils/http.exception.js";
 import { HashingHelper } from "../../utils/hashing.halper.js";
 import { JwtHelper } from "../../utils/jwt.helper.js";
-import { FurUser } from "../../models/FurnitureModel/furniuter.models.js";
+import { FurUser } from "../../models/Admin/furniuter.models.js";
 import axios from "axios";
 
 export class FurnitureUserController {
@@ -35,7 +35,7 @@ export class FurnitureUserController {
             phone_number, 
             email, 
             password: await HashingHelper.generatePassword(password),
-            address: { country, city, street,kocha, apartmant, zip_code },
+            address: { country, city, street, apartmant, zip_code },
             comment,
         });
         res.status(StatusCodes.CREATED).json({success: true, msg: "Successfully sign up!"});
@@ -103,6 +103,40 @@ export class FurnitureUserController {
                   streets: streetsResponse.data,
                 },
               });
-    })
+    });
+
+    ////
+    static getUserCount = asyncHandler(async (req, res) => {
+            const UserCount = await FurUser.countDocuments(); // Umumiy foydalanuvchi soni
+            const LoggedInUserCount = await FurUser.countDocuments({ lastLogin: { $ne: null } }); // Faqat logindan o'tgan foydalanuvchilar
+          
+            res.status(StatusCodes.OK).json({
+              success: true,
+              UserCount,
+              LoggedInUserCount, // Logindan o'tgan foydalanuvchi soni
+            });
+    });
+          
+    static getAllUsers = asyncHandler(async (req, res) => {
+            const { page = 1, limit = 10 } = req.query;
+            
+            // Foydalanuvchilarni vaqti bilan tartiblash
+            const users = await FurUser.find({}, '-password')
+                                    .skip((page - 1) * limit)
+                                    .limit(Number(limit))
+                                    .sort({ createdAt: -1 }); // Yangi foydalanuvchilarni birinchi qilib tartiblash
+                                    
+            const totalUsers = await FurUser.countDocuments();
+            const totalLoggedInUsers = await FurUser.countDocuments({ lastLogin: { $ne: null } });
+          
+            res.status(StatusCodes.OK).json({
+              success: true,
+              users,
+              totalUsers,
+              totalLoggedInUsers, 
+              totalPages: Math.ceil(totalUsers / limit),
+              currentPage: Number(page),
+            });
+    });
 
 }

@@ -14,4 +14,4 @@ export const sessionSchema = new Schema(
   { timestamps: true, versionKey: false }
 );
 
-export const Session = model(DB_CONSTANTS.SESSIONS, sessionSchema, DB_CONSTANTS.SESSIONS);
+export const Session = model(DB_CONSTANTS.SESSIONUSER, sessionSchema, DB_CONSTANTS.SESSIONUSER);

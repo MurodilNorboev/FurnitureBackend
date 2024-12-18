@@ -44,11 +44,12 @@ export class UserController {
                 ReasonPhrases.UNAUTHORIZED, 
                 "Invalid login credentials!")
         }
-        if (!HashingHelper.comparePassword(password, user.password)) {
+        if (!(await HashingHelper.comparePassword(password, user.password))) {
             throw new HttpException(
-                StatusCodes.UNAUTHORIZED, 
-                ReasonPhrases.UNAUTHORIZED, 
-                "Invalid login credentials!")
+                StatusCodes.UNAUTHORIZED,
+                ReasonPhrases.UNAUTHORIZED,
+                "Invalid login credentials!"
+            );
         }
 
         const access_token = await JwtHelper.sign(user._id)
@@ -65,41 +66,7 @@ export class UserController {
             });
         }
         res.status(StatusCodes.OK).json({success: true, data })
-    })
-
-    ////
-    static getUserCount = asyncHandler(async (req, res) => {
-        const UserCount = await User.countDocuments(); // Umumiy foydalanuvchi soni
-        const LoggedInUserCount = await User.countDocuments({ lastLogin: { $ne: null } }); // Faqat logindan o'tgan foydalanuvchilar
-      
-        res.status(StatusCodes.OK).json({
-          success: true,
-          UserCount,
-          LoggedInUserCount, // Logindan o'tgan foydalanuvchi soni
-        });
-      });
-      
-    static getAllUsers = asyncHandler(async (req, res) => {
-        const { page = 1, limit = 10 } = req.query;
-        
-        // Foydalanuvchilarni vaqti bilan tartiblash
-        const users = await User.find({}, '-password')
-                                .skip((page - 1) * limit)
-                                .limit(Number(limit))
-                                .sort({ createdAt: -1 }); // Yangi foydalanuvchilarni birinchi qilib tartiblash
-                                
-        const totalUsers = await User.countDocuments();
-        const totalLoggedInUsers = await User.countDocuments({ lastLogin: { $ne: null } });
-      
-        res.status(StatusCodes.OK).json({
-          success: true,
-          users,
-          totalUsers,
-          totalLoggedInUsers, 
-          totalPages: Math.ceil(totalUsers / limit),
-          currentPage: Number(page),
-        });
-    });  
+    }) 
 }
 
 /// bu otilgan signup la auftikatsiya deyladi
