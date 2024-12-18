@@ -7,7 +7,7 @@ import { auth } from '../../middleware/auts.middleware.js'
 // validate,
 router.post('/add', auth, addV(), validate, todoadd);   
 
-router.put('/edit/:id', auth, updataV(), validate, edit );   
+router.put('/edit/:id', auth, updataV(), validate, edit);   
 
 router.get('/get/:id', auth, get_id );
 

@@ -22,13 +22,15 @@ export const sendFile = async (buffer, key) => {
         })
 
         const data = await upload.done()
-        console.log(data);
         
         if (data.$metadata.httpStatusCode === 200) {
             return data.Location;
         }
     } catch (error) {
         console.log(error);
-        
     }
 }
+
+
+
+ 

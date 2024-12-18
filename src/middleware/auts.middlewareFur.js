@@ -2,8 +2,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { HttpException } from "../utils/http.exception.js";
 import { asyncHandler } from "./asynnc-handler.middleware.js";
 import { JwtHelper } from "../utils/jwt.helper.js";
-import { User } from "../models/user/user.model.js";
-import { FurUser } from "../models/FurnitureModel/furniuter.models.js"
+import { FurUser } from "../models/Admin/furniuter.models.js"
 
 
 
@@ -49,3 +48,4 @@ export const authF = asyncHandler(async ( req, res, next ) => {
     
     next();  /// next() bu yerda keyingi middleware yoki controllerga o'tish uchun chaqiriladi.
 })
+

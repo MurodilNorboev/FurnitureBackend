@@ -3,50 +3,132 @@ import { HttpException } from "../utils/http.exception.js";
 import { asyncHandler } from "./asynnc-handler.middleware.js";
 import { JwtHelper } from "../utils/jwt.helper.js";
 import { User } from "../models/user/user.model.js";
+import { FurUser } from "../models/Admin/furniuter.models.js";
 
+export const auth = asyncHandler(async (req, res, next) => {
+    let token;
 
-
-export const auth = asyncHandler(async ( req, res, next ) => {
-    let token
-    // (token) orqali dekodlash amalga oshiriladi. Bu, tokenni imzo bilan tekshirish va uning ichidagi foydalanuvchi ma'lumotlarini olish uchun ishlatiladi
+    // Tokenni olish
     if (req.headers.authorization?.startsWith('Bearer')) {
-        token = req.headers.authorization.split(" ")[1]
+        token = req.headers.authorization.split(" ")[1];
     }
-    
+
     if (!token) {
+        console.log("Token topilmadi!" + token);
         throw new HttpException(
             StatusCodes.UNAUTHORIZED,
             ReasonPhrases.UNAUTHORIZED,
-            ReasonPhrases.UNAUTHORIZED,
-            console.log(token + " token topilmadi !"),
-            
+            "Token topilmadi!"
         );
     }
 
-    const decoded = JwtHelper.verify(token)
+    // Tokenni dekodlash
+    const decoded = JwtHelper.verify(token);
     if (!decoded) {
+        console.log('decoded topilmadi!' + decoded);
         throw new HttpException(
             StatusCodes.UNAUTHORIZED,
             ReasonPhrases.UNAUTHORIZED,
-            ReasonPhrases.UNAUTHORIZED,
-            console.log(decoded + " decoded topilmadi !"), 
-        );
-    }
-    //// decoded.id orqali foydalanuvchi ma'lumotlarini User.findById(decoded.id) yordamida ma'lumotlar bazasidan izlaydi.
-    const user = await User.findById(decoded.id) 
-    /// Agar foydalanuvchi topilsa, uning ma'lumotlari req.body.userga saqlanadi va keyingi middleware yoki controllerga yuboriladi.
-    if (!user) { 
-        throw new HttpException(
-            StatusCodes.UNAUTHORIZED,
-            ReasonPhrases.UNAUTHORIZED,
-            ReasonPhrases.UNAUTHORIZED,
-            console.log(user + " user topilmadi !"), 
+            "Token noto'g'ri!"
         );
     }
 
-    req.body.user = user;
+    let user;
+
+    // Adminni tekshirish
+    if (decoded.role === 'admin') {
+        console.log("Admin tekshirilmoqda...");
+        user = await User.findById(decoded.id);
+        if (!user) {
+            console.log("Admin topilmadi!");
+            throw new HttpException(
+                StatusCodes.UNAUTHORIZED,
+                ReasonPhrases.UNAUTHORIZED,
+                "Admin topilmadi!"
+            );
+        }
+        req.body.user = user;
+        return next();
+    }
+
+    user = await FurUser.findById(decoded.id);
     
-    next();  /// next() bu yerda keyingi middleware yoki controllerga o'tish uchun chaqiriladi.
-})
+    if (!user) {        
+        // Agar foydalanuvchi Furnitureda topilmasa, admin tokenini tekshirib, uni user sifatida qabul qilamiz
+        user = await User.findById(decoded.id);
+        if (!user) {
+            console.log("Furni yoki Admin foydalanuvchi topilmadi!");
+            throw new HttpException(
+                StatusCodes.UNAUTHORIZED,
+                ReasonPhrases.UNAUTHORIZED,
+                "Furni yoki Admin foydalanuvchi topilmadi!"
+            );
+        }
+        req.body.user = user;
+        return next();
+    }
+    req.body.user = user;
+    next();
+});
 
-// bu yozilgan midlware aftorisetion deyiladi !
+
+
+
+
+
+
+
+
+
+// import { ReasonPhrases, StatusCodes } from "http-status-codes";
+// import { HttpException } from "../utils/http.exception.js";
+// import { asyncHandler } from "./asynnc-handler.middleware.js";
+// import { JwtHelper } from "../utils/jwt.helper.js";
+// import { User } from "../models/user/user.model.js";
+
+
+
+// export const auth = asyncHandler(async ( req, res, next ) => {
+//     let token
+//     // (token) orqali dekodlash amalga oshiriladi. Bu, tokenni imzo bilan tekshirish va uning ichidagi foydalanuvchi ma'lumotlarini olish uchun ishlatiladi
+//     if (req.headers.authorization?.startsWith('Bearer')) {
+//         token = req.headers.authorization.split(" ")[1]
+//     }
+    
+//     if (!token) {
+//         throw new HttpException(
+//             StatusCodes.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             console.log(token + " token topilmadi !"),
+            
+//         );
+//     }
+
+//     const decoded = JwtHelper.verify(token)
+//     if (!decoded) {
+//         throw new HttpException(
+//             StatusCodes.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             console.log(decoded + " decoded topilmadi !"), 
+//         );
+//     }
+//     //// decoded.id orqali foydalanuvchi ma'lumotlarini User.findById(decoded.id) yordamida ma'lumotlar bazasidan izlaydi.
+//     const user = await User.findById(decoded.id) 
+//     /// Agar foydalanuvchi topilsa, uning ma'lumotlari req.body.userga saqlanadi va keyingi middleware yoki controllerga yuboriladi.
+//     if (!user) { 
+//         throw new HttpException(
+//             StatusCodes.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             console.log(user + " user topilmadi !"), 
+//         );
+//     }
+
+//     req.body.user = user;
+    
+//     next();  /// next() bu yerda keyingi middleware yoki controllerga o'tish uchun chaqiriladi.
+// })
+
+// // bu yozilgan midlware aftorisetion deyiladi !

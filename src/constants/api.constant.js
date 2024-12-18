@@ -5,5 +5,6 @@ export class API_CONSTANTS {
     static MY_CART = "/my_cart"
     static EVENT = "/event"
     static SESSIONS = "/sessions"
-    static  USERFUR = "/userFur"
+    static USERFUR = "/userFur"
+    static PRODUCTS = "/product"
 }

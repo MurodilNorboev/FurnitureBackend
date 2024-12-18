@@ -2,17 +2,30 @@ import { StatusCodes } from 'http-status-codes'
 import { asyncHandler } from '../../middleware/asynnc-handler.middleware.js'
 import { sendFile } from '../../utils/s3.js'
 import { v4 } from 'uuid'
-import path from 'path'
+import path from 'path' 
 
-export const uploadFile = asyncHandler(async (req, res,) => {
-    const uplodadFile = req.file
-
-    const key = v4() + path.extname(uplodadFile.originalname);
-    let file_path = await sendFile(uplodadFile.buffer, key);
-    
-    if (file_path.startsWith('http://') !== file_path.startsWith('http://')) {
-        file_path = 'http://' + file_path
+export const uploadFile = asyncHandler(async (req, res) => {
+    const { image, image1 } = req.files;
+  
+    const filePaths = [];
+  
+    const fileGroups = [image, image1];
+    for (const fileGroup of fileGroups) {
+      if (fileGroup) {
+        for (const file of fileGroup) {
+          const key = v4() + path.extname(file.originalname);
+          const filePath = await sendFile(file.buffer, key);
+          filePaths.push(filePath.startsWith('https://') ? filePath : `http://${filePath}`);
+        }
+      }
     }
-
-    res.status(StatusCodes.OK).json({success: true, file_path})
-})
+  
+    if (filePaths.length === 0) {
+      return res.status(400).json({
+        success: false,
+        msg: 'At least one image or image1 file is required',
+      });
+    }
+  
+    res.status(200).json({ success: true, filePaths });
+  });

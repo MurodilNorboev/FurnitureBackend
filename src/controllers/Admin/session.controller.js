@@ -1,5 +1,5 @@
 import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
-import { Session } from "../../models/Session/session.madel.js";
+import { Session } from "../../models/Admin/session.madel.js";
 import { StatusCodes } from "http-status-codes";
 
 // Yangi sessiya qo'shish
@@ -11,7 +11,7 @@ export const addSession = asyncHandler(async (req, res) => {
 });
 
 // Barcha sessiyalarni olish
-    export const getAllSessions = asyncHandler(async (req, res) => {
+export const getAllSessions = asyncHandler(async (req, res) => {
       const { year, month } = req.query;  // Yil va oyni query parametrlaridan oling
       
       // Yil va oy qiymatlarining to‘g‘riligini tekshirish
@@ -47,4 +47,4 @@ export const addSession = asyncHandler(async (req, res) => {
       });
     
       res.status(StatusCodes.OK).json({ success: true, data: sessions });
-    });
+});
