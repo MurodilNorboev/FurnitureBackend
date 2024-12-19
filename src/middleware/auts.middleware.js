@@ -3,7 +3,7 @@ import { HttpException } from "../utils/http.exception.js";
 import { asyncHandler } from "./asynnc-handler.middleware.js";
 import { JwtHelper } from "../utils/jwt.helper.js";
 import { User } from "../models/user/user.model.js";
-import { FurUser } from "../models/Admin/furniuter.models.js";
+import { FurUser } from "../models/Admin/user.models.js";
 
 export const auth = asyncHandler(async (req, res, next) => {
     let token;

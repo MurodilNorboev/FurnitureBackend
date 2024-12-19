@@ -3,7 +3,7 @@ import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
 import { HttpException } from "../../utils/http.exception.js";
 import { HashingHelper } from "../../utils/hashing.halper.js";
 import { JwtHelper } from "../../utils/jwt.helper.js";
-import { FurUser } from "../../models/Admin/furniuter.models.js";
+import { FurUser } from "../../models/Admin/user.models.js";
 import axios from "axios";
 
 export class FurnitureUserController {

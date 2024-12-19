@@ -6,6 +6,4 @@ export class DB_CONSTANTS {
     static USERFUR = "userFur";
     static SESSIONUSER = "userS";
     static PRODUCTS = "product";
-    static TEXTILS = "textils";
-    static TABLES = "tables";
 }

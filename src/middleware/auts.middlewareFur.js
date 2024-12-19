@@ -2,7 +2,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { HttpException } from "../utils/http.exception.js";
 import { asyncHandler } from "./asynnc-handler.middleware.js";
 import { JwtHelper } from "../utils/jwt.helper.js";
-import { FurUser } from "../models/Admin/furniuter.models.js"
+import { FurUser } from "../models/Admin/user.models.js"
 
 
 

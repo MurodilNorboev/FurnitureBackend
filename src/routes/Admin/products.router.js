@@ -7,7 +7,8 @@ import { productsall,productEdit,  product_get_all, delet } from '../../controll
 import { validate } from '../../validator/validator.js';
 
 
-router.post("/:type/add", auth, addV(), productsall);
-router.get("/:type/all", product_get_all);
-router.put("/:type/edit/:id", auth, updataV(), validate, productEdit);
-router.delete("/:type/delete/:id", auth, delet);
+router.post("/add", auth, addV(), productsall);
+router.get("/all", product_get_all);
+router.put("/edit/:id", auth, updataV(), validate, productEdit);
+router.delete("/delete/:id", auth, delet);
+

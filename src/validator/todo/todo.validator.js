@@ -23,26 +23,24 @@ export const signupV = () => [
     body('full_name', 'Full name is required').notEmpty(),
     body('email', 'Invalid email')
         .isEmail()
+        // .matches(/^[a-zA-Z0-3._%+-?]+@gmail\.com$/)
         .matches(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)
         .withMessage('Only Gmail emails are allowed'),
-        body('phone_number', 'Phone number is required')
-        .notEmpty().withMessage('Phone number is required')
-        .isMobilePhone().withMessage('Invalid phone number format')
-        .matches(/^\+010|\+8210|\+998\d{7,11}$/).withMessage('Phone number must start with +010, +8210, or +998 and be between 9 and 15 digits'),
+    body('phone_number', 'Phone number is required').isMobilePhone(),
     body('password', 'Password is required!')
-        .isLength({ min: 8, max: 20 })
-        .custom(value => {
-            const criteriaCount = [
-                /[a]/.test(value),   // Kichik harf
-                /[A]/.test(value),   // Katta harf
-                /\d/.test(value),      // Raqam
-                /[!@#$%^&*()_+]/.test(value) // Maxsus belgi
-            ].filter(Boolean).length; // Haqiqiy qiymatlarni sanash
-            if (criteriaCount < 3) {
-                throw new Error('Password must contain at least 3 of the following: lowercase letter, uppercase letter, digit, special character.');
-            }
-            return true;
-        })
+    .isLength({ min: 8, max: 20 })
+    .custom(value => {
+        const criteriaCount = [
+            /[a-z]/.test(value),   // Kichik harf
+            /[A-Z]/.test(value),   // Katta harf
+            /\d/.test(value),      // Raqam
+            /[!@#$%^&*()_+]/.test(value) // Maxsus belgi
+        ].filter(Boolean).length; // Haqiqiy qiymatlarni sanash
+        if (criteriaCount < 2) {
+            throw new Error('Password must contain at least 2 of the following: lowercase letter, uppercase letter, digit, special character.');
+        }
+        return true;
+    })
 
 ];
 

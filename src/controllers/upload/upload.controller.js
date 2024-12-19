@@ -5,11 +5,11 @@ import { v4 } from 'uuid'
 import path from 'path' 
 
 export const uploadFile = asyncHandler(async (req, res) => {
-    const { image, image1 } = req.files;
+    const { image, image1, image2, image3, image4, image5, image6, image7 } = req.files;
   
     const filePaths = [];
   
-    const fileGroups = [image, image1];
+    const fileGroups = [image, image1, image2, image3, image4, image5, image6, image7];
     for (const fileGroup of fileGroups) {
       if (fileGroup) {
         for (const file of fileGroup) {
