@@ -12,3 +12,4 @@ router.get("/all", product_get_all);
 router.put("/edit/:id", auth, updataV(), validate, productEdit);
 router.delete("/delete/:id", auth, delet);
 
+

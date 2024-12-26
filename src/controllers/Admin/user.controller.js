@@ -4,7 +4,7 @@ import { HttpException } from "../../utils/http.exception.js";
 import { HashingHelper } from "../../utils/hashing.halper.js";
 import { JwtHelper } from "../../utils/jwt.helper.js";
 import { FurUser } from "../../models/Admin/user.models.js";
-import axios from "axios";
+import mongoose from "mongoose";
 
 export class FurnitureUserController {
 
@@ -84,59 +84,67 @@ export class FurnitureUserController {
     res.status(StatusCodes.OK).json({ success: true, user})
     });
 
-    static location = asyncHandler( async (req, res) => {
-
-              const countriesUrl = `https://us1.locationiq.com/v1/countries?key=pk.4f1260517ad6abfdc84df4fde8e0b4dd`;
-              const countriesResponse = await axios.get(countriesUrl);
+    static deleteUser = asyncHandler(async (req, res) => {
+        const { id } = req.params;  
+    
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, msg: "Invalid ID format"})
+        }
         
-              const citiesUrl = `https://us1.locationiq.com/v1/cities?key=pk.4f1260517ad6abfdc84df4fde8e0b4dd`;
-              const citiesResponse = await axios.get(citiesUrl);
-        
-              const streetsUrl = `https://us1.locationiq.com/v1/streets?key=pk.4f1260517ad6abfdc84df4fde8e0b4dd`;
-              const streetsResponse = await axios.get(streetsUrl);
-        
-              res.status(200).json({
-                success: true,
-                data: {
-                  countries: countriesResponse.data,
-                  cities: citiesResponse.data,
-                  streets: streetsResponse.data,
-                },
-              });
+        const user = await FurUser.findByIdAndDelete(id); 
+    
+        if (!user) {
+            return res.status(404).json({ success: false, msg: "User topilmadi!" })
+        }
+    
+        res.status(200).json({ success: true, data: user, msg: "User muvaffaqiyatli o'chirildi"})
     });
 
-    ////
     static getUserCount = asyncHandler(async (req, res) => {
-            const UserCount = await FurUser.countDocuments(); // Umumiy foydalanuvchi soni
-            const LoggedInUserCount = await FurUser.countDocuments({ lastLogin: { $ne: null } }); // Faqat logindan o'tgan foydalanuvchilar
-          
-            res.status(StatusCodes.OK).json({
-              success: true,
-              UserCount,
-              LoggedInUserCount, // Logindan o'tgan foydalanuvchi soni
-            });
+        const { query } = req.query;
+    
+        // Qidiruv sharti
+        const searchFilter = query
+            ? {
+                $or: [
+                    { full_name: { $regex: query, $options: "i" } },
+                    { lastName: { $regex: query, $options: "i" }},
+                    { email: { $regex: query, $options: "i" } }
+                ]
+            }
+            : {};
+    
+        // Foydalanuvchilar sonini hisoblash
+        const UserCount = await FurUser.countDocuments(searchFilter);
+    
+        // Kirgan foydalanuvchilar soni
+        const LoggedInUserCount = await FurUser.countDocuments({
+            ...searchFilter,
+            lastLogin: { $ne: null }
+        });
+    
+        // Foydalanuvchilarni olish
+        const usersData = await FurUser.find(
+            searchFilter,
+            `full_name 
+             lastName
+             email 
+             phone_number 
+             address.country 
+             address.city 
+             address.street
+             address.apartmant
+             address.zip_code
+             comment
+             sana`
+        );
+    
+        res.status(StatusCodes.OK).json({
+            success: true,
+            UserCount,
+            LoggedInUserCount,
+            usersData,
+        });
     });
-          
-    static getAllUsers = asyncHandler(async (req, res) => {
-            const { page = 1, limit = 10 } = req.query;
-            
-            // Foydalanuvchilarni vaqti bilan tartiblash
-            const users = await FurUser.find({}, '-password')
-                                    .skip((page - 1) * limit)
-                                    .limit(Number(limit))
-                                    .sort({ createdAt: -1 }); // Yangi foydalanuvchilarni birinchi qilib tartiblash
-                                    
-            const totalUsers = await FurUser.countDocuments();
-            const totalLoggedInUsers = await FurUser.countDocuments({ lastLogin: { $ne: null } });
-          
-            res.status(StatusCodes.OK).json({
-              success: true,
-              users,
-              totalUsers,
-              totalLoggedInUsers, 
-              totalPages: Math.ceil(totalUsers / limit),
-              currentPage: Number(page),
-            });
-    });
-
+    
 }

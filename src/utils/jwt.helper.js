@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export class JwtHelper {
     static sign = async (id, role) => {
-        return sign({ id, role }, JWT_SECRET, { expiresIn: '24h' }); 
+        return sign({ id, role }, JWT_SECRET, { expiresIn: '180d' }); 
     };
 
     static verify = (token) => {

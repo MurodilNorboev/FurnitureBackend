@@ -16,8 +16,7 @@ router.get("/me", authF, FurnitureUserController.getMe);
 
 router.put("/edit-user/:id", authF, FurnitureUserController.updateUser);
 
-router.get("countries", FurnitureUserController.location);
+router.delete("/delet/:id", FurnitureUserController.deleteUser)
 
 router.get('/user-count', FurnitureUserController.getUserCount);
 
-router.get('/all-users', auth, FurnitureUserController.getAllUsers);

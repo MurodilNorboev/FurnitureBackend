@@ -31,11 +31,11 @@ export const signupV = () => [
     .isLength({ min: 8, max: 20 })
     .custom(value => {
         const criteriaCount = [
-            /[a-z]/.test(value),   // Kichik harf
-            /[A-Z]/.test(value),   // Katta harf
-            /\d/.test(value),      // Raqam
-            /[!@#$%^&*()_+]/.test(value) // Maxsus belgi
-        ].filter(Boolean).length; // Haqiqiy qiymatlarni sanash
+            /[a-z]/.test(value),   
+            /[A-Z]/.test(value),  
+            // /\d/.test(value),      
+            /[!@#$%^&*()_+]/.test(value) 
+        ].filter(Boolean).length; 
         if (criteriaCount < 2) {
             throw new Error('Password must contain at least 2 of the following: lowercase letter, uppercase letter, digit, special character.');
         }
