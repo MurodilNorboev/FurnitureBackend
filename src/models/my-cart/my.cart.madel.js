@@ -15,5 +15,6 @@ const myCartSchema = new Schema({
 },
 {timestamps: {createdAt:'sana',updatedAt:'yangilanish'}, versionKey: false}
 );
-
 export const MyCart = model(DB_CONSTANTS.MY_CART, myCartSchema, DB_CONSTANTS.MY_CART);
+
+

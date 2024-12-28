@@ -6,6 +6,7 @@ import { JwtHelper } from "../../utils/jwt.helper.js";
 import { FurUser } from "../../models/Admin/user.models.js";
 import mongoose from "mongoose";
 
+
 export class FurnitureUserController {
 
     static signUp = asyncHandler( async (req, res) => {
@@ -103,27 +104,22 @@ export class FurnitureUserController {
     static getUserCount = asyncHandler(async (req, res) => {
         const { query } = req.query;
     
-        // Qidiruv sharti
         const searchFilter = query
             ? {
                 $or: [
                     { full_name: { $regex: query, $options: "i" } },
                     { lastName: { $regex: query, $options: "i" }},
-                    { email: { $regex: query, $options: "i" } }
                 ]
             }
             : {};
-    
-        // Foydalanuvchilar sonini hisoblash
+
         const UserCount = await FurUser.countDocuments(searchFilter);
     
-        // Kirgan foydalanuvchilar soni
         const LoggedInUserCount = await FurUser.countDocuments({
             ...searchFilter,
             lastLogin: { $ne: null }
         });
     
-        // Foydalanuvchilarni olish
         const usersData = await FurUser.find(
             searchFilter,
             `full_name 
