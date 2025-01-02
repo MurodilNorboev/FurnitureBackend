@@ -47,6 +47,7 @@ const productSchema = new Schema({
   Assemblys: { type: String, required: true },
   chair: { type: String, required: true },
   cost: { type: String, required: true },
+  discount: { type: Number, default: 0 },
 }, { timestamps: { createdAt: "sana", updatedAt: "yangilanish" }, versionKey: false });
 
 export const Product = model(DB_CONSTANTS.PRODUCTS, productSchema, DB_CONSTANTS.PRODUCTS);

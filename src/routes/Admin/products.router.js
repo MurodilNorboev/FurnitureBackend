@@ -24,5 +24,4 @@ router.get('/cart-count', Products.getAllCarts)
 
 router.delete('/cart/:cartId/furniture/:furnitureId', Products.cartDelet);
 
-
-
+router.get('/with-discount', Products.product_get_all_with_discount); 
