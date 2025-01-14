@@ -9,6 +9,6 @@ export const router = Router();
 
 router.post("/sign-up", signupV(), validate,   UserController.signUp);
 
-router.post("/login", loginV(),   UserController.login);
+router.post("/login", auth, loginV(),   UserController.login);
 
 router.get("/me", authF, UserController.getprofile);

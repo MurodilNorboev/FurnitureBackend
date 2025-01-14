@@ -8,7 +8,7 @@ import { validate } from '../../validator/validator.js';
 import { authF } from '../../middleware/auts.middlewareFur.js'
 
 
-router.post("/add", auth, addV(), Products.productsall);
+router.post("/add",  Products.productsall);
 
 router.get("/all", Products.product_get_all);
 
@@ -16,12 +16,16 @@ router.put("/edit/:id", auth, updataV(), validate, Products.productEdit);
 
 router.delete("/delete/:id", auth, Products.delet);
 
-router.post('/order', auth, addCartV(), validate, Products.addToCart);
+router.get('/with-discount', Products.product_get_all_with_discount);  // with discounts
 
-router.get('/order-get', auth, Products.getCart);
+router.post('/order', addCartV(), validate, Products.addToCart); // add
 
-router.get('/cart-count', Products.getAllCarts)
+router.get('/order-get', Products.getCart); // getall
+
+router.get('/cart-count', Products.getAllCarts) // get all search
 
 router.delete('/cart/:cartId/furniture/:furnitureId', Products.cartDelet);
 
-router.get('/with-discount', Products.product_get_all_with_discount); 
+router.post('/checkout', Products.checkout);
+
+router.get('/carts', Products.viewCart);

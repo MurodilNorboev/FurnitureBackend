@@ -46,6 +46,7 @@ export class FurnitureUserController {
         const {email, password} = req.body
 
         const user = await FurUser.findOne({ email }).select("+password")
+        
         if(!user) {
             throw new HttpException(
                 StatusCodes.UNAUTHORIZED, 
@@ -60,7 +61,7 @@ export class FurnitureUserController {
         }
 
         const access_token = await JwtHelper.sign(user._id)
-
+        
         res.status(StatusCodes.OK).json({success: true, access_token})
     });
 

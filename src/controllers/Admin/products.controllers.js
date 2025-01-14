@@ -7,7 +7,6 @@ import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
 import moment from "moment";
 
 export class Products {
-  
   static productsall = asyncHandler(async (req, res) => {
     const {
       cost,
@@ -275,9 +274,35 @@ export class Products {
     });
   };
 
+  static product_get_all_with_discount = async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    const dateFilter =
+      startDate && endDate
+        ? {
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+          }
+        : {};
+
+    const data = await Product.find({ discount: { $gt: 0 }, ...dateFilter });
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        msg: "Chegirma qo'llangan mahsulotlar topilmadi!",
+      });
+    }
+
+    res.status(200).json({ success: true, data });
+  };
+
   static addToCart = asyncHandler(async (req, res) => {
     const { user, fur_id } = req.body;
 
+    console.log(user, fur_id);
     await MyFurCart.findOneAndUpdate(
       { user: user._id },
       { $addToSet: { furniture: fur_id }, $set: { user: user._id } },
@@ -332,10 +357,7 @@ export class Products {
     });
 
     const cartsData = await MyFurCart.find(searchFilter)
-      .populate([
-        { path: "furniture", select: "types" },
-        { path: "user", select: "sana" },
-      ])
+      .populate([{ path: "furniture" }, { path: "user" }])
       .sort({ sana: -1 });
 
     // Furniture asosida oxirgi 30 kunni hisoblash
@@ -360,11 +382,8 @@ export class Products {
     });
   });
 
-  static cartDelet = async (req, res) => {
+  static cartDelet = asyncHandler(async (req, res) => {
     const { cartId, furnitureId } = req.params;
-
-    console.log("Cart ID from params:", req.params.cartId);
-    console.log("Furniture ID from params:", req.params.furnitureId);
 
     if (
       !mongoose.Types.ObjectId.isValid(cartId) ||
@@ -373,54 +392,129 @@ export class Products {
       return res.status(400).json({ success: false, msg: "Invalid ID format" });
     }
 
+    // Savatni ID bo'yicha toping
     const cart = await MyFurCart.findById(cartId);
 
     if (!cart) {
       return res.status(404).json({ success: false, msg: "Cart topilmadi" });
     }
+
+    // `items` ichidagi mahsulotni o'chirish
+    const itemIndex = cart.items.findIndex(
+      (item) => item.product.toString() === furnitureId
+    );
+    if (itemIndex !== -1) {
+      cart.items.splice(itemIndex, 1);
+    }
+
+    // `furniture` ichidagi mahsulotni o'chirish
     const furnitureIndex = cart.furniture.findIndex(
       (item) => item._id.toString() === furnitureId
     );
-
-    if (furnitureIndex === -1) {
-      return res
-        .status(404)
-        .json({ success: false, msg: "Furniture topilmadi" });
+    if (furnitureIndex !== -1) {
+      cart.furniture.splice(furnitureIndex, 1);
     }
 
-    cart.furniture.splice(furnitureIndex, 1);
+    // Agar mahsulotlar topilmasa, xabar qaytariladi
+    if (itemIndex === -1 && furnitureIndex === -1) {
+      return res
+        .status(404)
+        .json({ success: false, msg: "Mahsulot cartda topilmadi" });
+    }
 
-    await cart.save();
+    // Umumiy narxni qayta hisoblash
+    cart.totalCost = cart.items.reduce(
+      (total, item) => total + item.totalCost,
+      0
+    );
+
+    const updatedCart = await cart.save();
 
     res.status(200).json({
       success: true,
-      data: cart,
-      msg: "Furniture muvaffaqiyatli cartdan o'chirildi",
+      cart: updatedCart,
+      msg: "Mahsulot muvaffaqiyatli cartdan o'chirildi",
     });
-  };
+  });
 
-  static product_get_all_with_discount = async (req, res) => {
-    const { startDate, endDate } = req.query;
+  static checkout = asyncHandler(async (req, res) => {
+    const { userId, furnitureId, quantity } = req.body;
 
-    const dateFilter =
-      startDate && endDate
-        ? {
-            createdAt: {
-              $gte: new Date(startDate),
-              $lte: new Date(endDate),
-            },
-          }
-        : {};
+    if (!mongoose.Types.ObjectId.isValid(furnitureId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid furniture ID" });
+    }
 
-    const data = await Product.find({ discount: { $gt: 0 }, ...dateFilter });
+    const product = await Product.findById(furnitureId);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({
-        success: false,
-        msg: "Chegirma qo'llangan mahsulotlar topilmadi!",
+    const productCost = parseFloat(product.cost.replace("$", "").trim());
+    if (isNaN(productCost)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid product cost" });
+    }
+
+    let userCart = await MyFurCart.findOne({ user: userId });
+
+    if (!userCart) {
+      userCart = new MyFurCart({
+        user: userId,
+        items: [],
+        totalCost: 0,
       });
     }
 
-    res.status(200).json({ success: true, data });
-  };
+    const existingProduct = userCart.items.find(
+      (item) => item.product.toString() === product._id.toString()
+    );
+
+    if (existingProduct) {
+      existingProduct.quantity = quantity;
+      existingProduct.totalCost = existingProduct.quantity * productCost;
+    } else {
+      userCart.items.push({
+        product: product._id,
+        quantity,
+        totalCost: productCost * quantity,
+      });
+    }
+
+    userCart.totalCost = userCart.items.reduce(
+      (total, item) => total + item.totalCost,
+      0
+    );
+
+    const updatedCart = await userCart.save();
+
+    res.status(200).json({
+      success: true,
+      cart: updatedCart,
+    });
+  });
+
+  static viewCart = asyncHandler(async (req, res) => {
+    const { userId } = req.query;
+
+    let userCart = await MyFurCart.findOne({ user: userId }).populate(
+      "items.product"
+    );
+
+    if (!userCart) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User cart not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      cart: userCart,
+      totalCost: userCart.totalCost || 0,
+    });
+  });
 }

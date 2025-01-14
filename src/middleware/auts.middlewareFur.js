@@ -5,12 +5,25 @@ import { JwtHelper } from "../utils/jwt.helper.js";
 import { FurUser } from "../models/Admin/user.models.js"
 import { User } from "../models/user/user.model.js";
 
-export const authF = asyncHandler(async (req, res, next) => {
-    let token;
 
-    if (req.headers.authorization?.startsWith('Bearer')) {
-        token = req.headers.authorization.split(" ")[1];
-    }
+export const authF = asyncHandler(async (req, res, next) => {
+    // let token;
+
+    // if (req.headers.authorization?.startsWith('Bearer')) {
+    //     token = req.headers.authorization.split(" ")[1];
+    // }
+
+    let token;
+if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(" ")[1];
+} else {
+    throw new HttpException(
+        StatusCodes.UNAUTHORIZED,
+        ReasonPhrases.UNAUTHORIZED,
+        "Token mavjud emas!"
+    );
+}
+
 
     if (!token) {
         throw new HttpException(
@@ -22,6 +35,7 @@ export const authF = asyncHandler(async (req, res, next) => {
     }
 
     const decoded = JwtHelper.verify(token);
+
     if (!decoded) {
         throw new HttpException(
             StatusCodes.UNAUTHORIZED,
@@ -70,3 +84,48 @@ export const authF = asyncHandler(async (req, res, next) => {
     next();  
 });
 
+// export const authF = asyncHandler(async (req, res, next) => {
+//     let token;
+
+//     if (req.headers.authorization?.startsWith('Bearer')) {
+//         token = req.headers.authorization.split(" ")[1];
+//     }
+
+//     console.log(token, ' user tokeni');
+    
+
+//     if (!token) {
+//         console.log("Token topilmadi!");
+//         throw new HttpException(
+//             StatusCodes.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             "Token topilmadi!"
+//         );
+//     }
+
+//     const decoded = JwtHelper.verify(token);
+
+//     if (!decoded) {
+//         console.log("Token noto'g'ri!");
+//         throw new HttpException(
+//             StatusCodes.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             "Token noto'g'ri!"
+//         );
+//     }
+
+//     const user = await FurUser.findById(decoded.id);
+//     console.log(user, token, 'bular token va user');
+    
+
+//     if (!user) {
+//         console.log("Foydalanuvchi topilmadi!");
+//         throw new HttpException(
+//             StatusCodes.UNAUTHORIZED,
+//             ReasonPhrases.UNAUTHORIZED,
+//             "Foydalanuvchi topilmadi!"
+//         );
+//     }
+
+//     next();  
+// });
