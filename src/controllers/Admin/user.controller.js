@@ -67,6 +67,7 @@ export class FurnitureUserController {
 
     static getMe = asyncHandler(async (req, res) => {
         const user = req.body.user; 
+        
         res.status(StatusCodes.OK).json({ success: true, data: user });
     });
 

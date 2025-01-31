@@ -15,7 +15,7 @@ export const sendFile = async (buffer, key) => {
         const upload = new Upload({
             client: news3Client,
             params: {
-                Bucket: 'bc53f73a-todo',
+                Bucket: 'bc53f73a-f34a549e-5db2-4145-b006-fdcef6730da4',
                 Key: key,
                 Body: buffer,
             },

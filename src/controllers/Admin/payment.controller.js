@@ -26,7 +26,7 @@ export class CartController {
         });
       }
 
-      userCart.items.push({
+      userCart.items.unshift({
         product: productId,
         quantity: quantity,
         totalCost: parseFloat(product.cost) * quantity,
@@ -51,6 +51,7 @@ export class CartController {
     res.status(200).json({
       success: true,
       cart: userCart,
+      productId,
       totalCost: userCart.totalCost,
     });
   });
@@ -77,7 +78,8 @@ export class CartController {
   });
 
   static createOrder = asyncHandler(async (req, res) => {
-    const { userId, userinfo, deliveryAddress } = req.body;
+    const { userinfo, deliveryAddress } = req.body;
+    const { userId } = req.params; // URL orqali kelgan userId
 
     if (
       !userinfo ||
@@ -141,9 +143,6 @@ export class CartController {
       paymentMethod: userCart.paymentMethod || "CASH",
     });
 
-    // Savatchani tozalash
-    await MyFurCart.deleteOne({ user: userId });
-
     // Javob qaytarish
     res.status(201).json({
       success: true,
@@ -153,10 +152,9 @@ export class CartController {
   });
 
   static getOrderById = asyncHandler(async (req, res) => {
-    const { userId, orderId } = req.params;
+    const { userId } = req.params;
 
     const order = await OrderPayment.findOne({
-      _id: orderId,
       user: userId,
     }).populate("items.product");
 
@@ -174,17 +172,18 @@ export class CartController {
   });
 
   static processPayment = asyncHandler(async (req, res) => {
-    const { userId, orderId } = req.params; // URL parametrlaridan olish
-    const { paymentMethod, cardDetails } = req.body; // Qolgan ma'lumotlarni bodydan olish
+    const { userId, orderId } = req.params;
+    const { paymentMethod, cardDetails } = req.body;
 
-    // Buyurtmani bazadan olish
-    const order = await OrderPayment.findById(orderId);
+    const order = await OrderPayment.findById(orderId).populate(
+      "items.product"
+    );
+    console.log(orderId, userId, order);
 
     if (!order || order.user.toString() !== userId) {
       throw new Error("Buyurtma topilmadi yoki ruxsat yo'q");
     }
 
-    // Karta ma'lumotlarini tekshirish
     if (paymentMethod === "VISA") {
       if (!cardDetails || !cardDetails.number || !cardDetails.expiry) {
         throw new Error("Karta ma'lumotlari to'liq emas");
@@ -196,6 +195,8 @@ export class CartController {
     order.status = "PAID"; // To'lov amalga oshirildi
     await order.save();
 
+    // Savatchani tozalash
+    await MyFurCart.deleteOne({ user: userId });
     // Javob qaytarish
     res.status(200).json({
       success: true,

@@ -29,7 +29,7 @@ if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')
         throw new HttpException(
             StatusCodes.UNAUTHORIZED,
             ReasonPhrases.UNAUTHORIZED,
-            "Token topilmadi!",
+            "Token topilmadii!",
             console.log(token + " token topilmadi !")
         );
     }

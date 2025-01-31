@@ -26,17 +26,28 @@ const myMebelShema = new Schema(
           default: 1,
         },
         totalCost: {
+          // Price
           type: Number,
           required: true,
           default: 0,
         },
+        widthType: { type: String, required: false },
+        setColors: { type: [String], required: false },
       },
     ],
-    totalCost: {
+    subTotalCost: {
       type: Number,
       required: true,
       default: 0,
     },
+    paymentMethod: {
+      type: String,
+      enum: ["CASH", "VISA/MASTERCARD"],
+      required: false,
+      default: "CASH",
+    },
+    setColors: [{ type: String }], // ✅ Ranglar string array bo‘lishi kerak!
+    widthType: { type: String, enum: ["min", "max"], default: "min" },
   },
   {
     timestamps: { createdAt: "sana", updatedAt: "yangilanish" },
@@ -50,4 +61,4 @@ export const MyFurCart = model(
   DB_CONSTANTS.MY_FurCART
 );
 
-
+// addcart qilayotganda ikkita button boladi bular: minWidth,Height/// maxWidth,Height boladi bu juftliklarni birini tanlaganda  minWidth,Height tanlaganda narh cost boyicha hisoblaydi agarda maxWidth,Height bolsa BigCost bilan hisoblaydigon bolishi kerak boladi shu narsani qilsak boladimi?

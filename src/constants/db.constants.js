@@ -7,4 +7,5 @@ export class DB_CONSTANTS {
     static SESSIONUSER = "userS";
     static PRODUCTS = "product";
     static PAYMENT = "payment";
+    static LIKES = "likes";
 }

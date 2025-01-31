@@ -33,7 +33,7 @@ export class UserController {
 
         res.status(StatusCodes.CREATED).json({success: true, msg: "Successfully sign up!"});
     });
-
+    
     static login = asyncHandler( async (req, res) => {
         const {email, password} = req.body
 
