@@ -12,7 +12,7 @@ const orderSchema = new Schema(
       {
         product: {
           type: Schema.Types.ObjectId,
-          ref: DB_CONSTANTS.PRODUCTS,
+          ref: DB_CONSTANTS.MY_FurCART,
           required: true,
         },
         quantity: {
@@ -25,9 +25,11 @@ const orderSchema = new Schema(
           required: true,
           default: 0,
         },
+        widthType: { type: String, required: false },
+        setColors: { type: [String], required: false },
       },
     ],
-    totalCost: {
+    subTotalCost: {
       type: Number,
       required: true,
       default: 0,
@@ -41,9 +43,9 @@ const orderSchema = new Schema(
       type: String,
       enum: ["CASH", "VISA"],
       required: false,
+      default: "CASH",
     },
     deliveryCost: { type: Number, default: 0 },
-    subtotal: { type: Number, required: true },
     userinfo: {
       first_name: { type: String, required: true },
       last_name: { type: String, required: true },

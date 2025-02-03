@@ -4,14 +4,14 @@ import { auth } from "../../middleware/auts.middleware.js";
 
 export const router = Router();
 
-router.post("/update",  CartController.updateCart); // update
+router.post("/checkout",  CartController.updateCart); // checkout
 
-router.get("/cart/:userId", CartController.GetupdatedCart ); // get update
+router.get("/get-checkout/:userId", CartController.GetupdatedCart ); // get update
 
 router.post("/create-order/:userId",auth, CartController.createOrder); // order
 
-router.get("/orders/:userId/", CartController.getOrderById); // get order
+router.get("/get-orders/:userId", CartController.getOrderById); // get order
 
-router.post("/order/:userId/:orderId", auth, CartController.processPayment); // payment
+router.post("/create-payment/:userId/:orderId", auth, CartController.processPayment); // payment
 
-router.get("/order/:userId", CartController.getOrders); // get payment
+router.get("/get-payment/:userId", CartController.getOrders); // get payment

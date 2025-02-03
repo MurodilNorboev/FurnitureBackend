@@ -35,6 +35,7 @@ export const FurUserSchema = new Schema({
         type: String,
         required: false,
     }
+    
 },
 {timestamps: {createdAt:'sana',updatedAt:'yangilanish'}, versionKey: false}
 );

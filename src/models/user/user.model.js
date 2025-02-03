@@ -20,6 +20,11 @@ export const userSchema = new Schema({
         required: true, 
         select: false 
     },
+    role: {
+        type: String,
+        enum: ['super_admin', "admin_plus", 'admin', 'basic_admin'], 
+        default: 'basic_admin',
+      },
 },
 {timestamps: {createdAt:'sana',updatedAt:'yangilanish'}, versionKey: false}
 );

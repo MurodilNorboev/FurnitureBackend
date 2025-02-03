@@ -33,6 +33,12 @@ const myMebelShema = new Schema(
         },
         widthType: { type: String, required: false },
         setColors: { type: [String], required: false },
+        item_id: {
+          type: Schema.Types.ObjectId, // ObjectId bo‘lishi kerak
+          default: function () {
+            return new mongoose.Types.ObjectId();
+          },
+        },
       },
     ],
     subTotalCost: {
@@ -42,12 +48,10 @@ const myMebelShema = new Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["CASH", "VISA/MASTERCARD"],
+      enum: ["CASH", "VISA"],
       required: false,
       default: "CASH",
     },
-    setColors: [{ type: String }], // ✅ Ranglar string array bo‘lishi kerak!
-    widthType: { type: String, enum: ["min", "max"], default: "min" },
   },
   {
     timestamps: { createdAt: "sana", updatedAt: "yangilanish" },
