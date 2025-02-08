@@ -7,7 +7,6 @@ import { errorMiddleware } from "./middleware/error.middleware.js";
 import { readFileSync } from 'fs';
 import swaggerUI from 'swagger-ui-express';
 
-
 const server = express(); 
 void MONGODB_CONNECT();
 server.use(express.json()); 

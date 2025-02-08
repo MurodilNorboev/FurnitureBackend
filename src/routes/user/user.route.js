@@ -9,6 +9,7 @@ export const router = Router();
 
 router.post("/login", loginV(), UserController.login);
 router.post("/add-user", authF, checkRole("manage_users"), UserController.addUser );
-router.delete("/delete-admin/:adminId", authF, checkRole("manage_users"), UserController.deleteAdmin );
+router.delete("/delete-admin/:adminId", authF, checkRole("delete-user"), UserController.deleteAdmin );
 router.get("/me", authF, UserController.getprofile);
-router.get("/user-Statistics", authF, checkRole("view_statistics"), UserController.userStatistics);
+router.get("/user-Statistics", authF, UserController.userStatistics);
+router.get("/verify-token", authF, UserController.verifyToken);

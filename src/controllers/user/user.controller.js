@@ -4,6 +4,7 @@ import { User } from "../../models/user/user.model.js";
 import { HttpException } from "../../utils/http.exception.js";
 import { HashingHelper } from "../../utils/hashing.halper.js";
 import { JwtHelper } from "../../utils/jwt.helper.js";
+import { FurUser } from "../../models/Admin/user.models.js";
 
 export class UserController {
   static login = asyncHandler(async (req, res) => {
@@ -32,13 +33,15 @@ export class UserController {
 
   static getprofile = asyncHandler(async (req, res) => {
     const data = req.body.user;
-    if (!data) {
+
+    const user = await User.find(data);
+    if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
         message: "Foydalanuvchi topilmadi",
       });
     }
-    res.status(StatusCodes.OK).json({ success: true, data });
+    res.status(StatusCodes.OK).json({ success: true, user });
   });
 
   static addUser = asyncHandler(async (req, res) => {
@@ -70,20 +73,27 @@ export class UserController {
   });
 
   static userStatistics = asyncHandler(async (req, res) => {
-    // Statistikani olish (masalan, umumiy foydalanuvchilar soni yoki boshqa statistikalar)
-    // Misol uchun, foydalanuvchilar sonini olish:
-    const userCount = await User.countDocuments();
-    const adminCount = await FurUser.countDocuments();
+    try {
+      const userCount = await FurUser.countDocuments(); 
+      const adminCount = await User.countDocuments(); 
+      const allAdmins = await User.find({}, "-password"); 
 
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: "Statistika ko'rsatilmoqda.",
-      data: {
-        userCount,
-        adminCount,
-        // boshqa statistikalar ham qo'shilishi mumkin
-      },
-    });
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Statistika ko'rsatilmoqda.",
+        data: {
+          userCount,
+          adminCount,
+          allAdmins, 
+        },
+      });
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Statistika olinmadi.",
+        error: error.message,
+      });
+    }
   });
 
   static deleteAdmin = asyncHandler(async (req, res) => {
@@ -113,6 +123,23 @@ export class UserController {
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Admin muvaffaqiyatli o‘chirildi.",
+    });
+  });
+
+  static verifyToken = asyncHandler(async (req, res) => {
+    const user = req.body.user; // Middleware orqali kelgan foydalanuvchi
+
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        valid: false,
+        message: "Token yaroqsiz yoki foydalanuvchi topilmadi!",
+      });
+    }
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      valid: true,
     });
   });
 }

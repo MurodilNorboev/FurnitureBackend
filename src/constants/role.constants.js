@@ -5,11 +5,12 @@ export const BASIC_ADMIN = "basic_admin";
 
 export const permissions = {
   [SUPER_ADMIN]: [
+    "delete-user",
+    "admin-statistics",
     "manage_users",
     "manage_data",
     "view_statistics",
     "delete_data",
-    "update_data",
   ],
   [ADMIN_PLUS]: [
     "manage_users",

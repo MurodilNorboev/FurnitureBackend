@@ -34,7 +34,8 @@ export const FurUserSchema = new Schema({
     comment: {
         type: String,
         required: false,
-    }
+    },
+    isActive: { type: Boolean, default: false }
     
 },
 {timestamps: {createdAt:'sana',updatedAt:'yangilanish'}, versionKey: false}

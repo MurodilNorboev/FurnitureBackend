@@ -18,7 +18,7 @@ const checkRole = (requiredPermission, requiredRole) => {
       if (!userRole) {
         return res.status(403).json({
           success: false,
-          message: "Foydalanuvchi roli aniqlanmadi.",
+          message: "User role not determined.",
         });
       }
 
@@ -41,7 +41,7 @@ const checkRole = (requiredPermission, requiredRole) => {
 
       return res.status(403).json({
         success: false,
-        message: "Sizda bu amalni bajarishga ruxsat yo'q.",
+        message: "Attempt denied: This action is restricted to higher-level administrators.",
       });
     } catch (error) {
       return res.status(401).json({

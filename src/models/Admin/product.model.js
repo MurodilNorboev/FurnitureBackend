@@ -11,7 +11,7 @@ const ProductSchema = new Schema(
     SpecialOffers: { type: String, required: false }, /// select boladi ! / bunda Hot, Popular, New, All boladi kotta harif bilan !
     desc1: { type: String, required: false },
     Color: { type: String, required: true }, // color // select bolishi kerak
-    ColorSet: { type: [String], required: false }, // color // select bolishi kerak / yellow, red, blue, green, white, black
+    ColorSet: { type: [String], required: true }, // color // select bolishi kerak / yellow, red, blue, green, white, black
     Styles: { type: String, required: true }, // style /// select bolish kera
     image: { type: String, required: true },
     image1: { type: String, required: false },

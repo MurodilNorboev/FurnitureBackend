@@ -1,17 +1,20 @@
-import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
-import { HttpException } from "../../utils/http.exception.js";
+import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { HashingHelper } from "../../utils/hashing.halper.js";
-import { JwtHelper } from "../../utils/jwt.helper.js";
+import { HttpException } from "../../utils/http.exception.js";
 import { FurUser } from "../../models/Admin/user.models.js";
-import mongoose from "mongoose";
 import { generateOTP } from "../../utils/generate.otp.js";
 import MailService from "../../service/mail.service.js";
-
+import { JwtHelper } from "../../utils/jwt.helper.js";
+import mongoose from "mongoose";
+import moment from "moment/moment.js";
 let storedOTP = null;
-let otpExpirationTime = null; // Amal qilish muddatini saqlash uchun degisken
+let otpExpirationTime = null;
+let pendingUser = null;
 
 export class FurnitureUserController {
+
+  // sig-up/ verify-OTP / login
   static signUp = asyncHandler(async (req, res) => {
     const {
       full_name,
@@ -19,85 +22,85 @@ export class FurnitureUserController {
       phone_number,
       email,
       password,
-      address: { country, city, street, apartmant, zip_code },
+      address,
       comment,
     } = req.body;
 
-    // Проверка на существующий email
+    // Emailni tekshirish
     const existingUser = await FurUser.findOne({ email });
     if (existingUser) {
       throw new HttpException(
         StatusCodes.CONFLICT,
         ReasonPhrases.CONFLICT,
-        "This email is already used!"
+        "Bu email allaqachon ishlatilgan!"
       );
     }
-    const newUser = await FurUser.create({
+
+    // Yangi foydalanuvchining ma'lumotlarini vaqtinchalik saqlash
+    pendingUser = {
       full_name,
       lastName,
       phone_number,
       email,
       password: await HashingHelper.generatePassword(password),
-      address: { country, city, street, apartmant, zip_code },
+      address,
       comment,
-    });
+      isActive: false, // Hali aktiv emas
+      otp: generateOTP(), // OTP yaratish
+      otpExpiration: Date.now() + 5 * 60 * 1000, // OTP muddatini belgilash (5 daqiqa)
+    };
 
-    const otp = generateOTP();
-    newUser.otp = otp;
-    newUser.otpExpiration = Date.now() + 5 * 60 * 1000; // OTPning amal qilish muddati 5 daqiqa
-    await newUser.save();
-    const emailBody = `Your OTP for activation is: ${otp}. It will expire in 15 minutes.`;
-    await MailService.sendMail(email, "Account Activation OTP", emailBody);
+    // OTP yuborish
+    const emailBody = `Sizning aktivatsiya uchun OTP kodingiz: ${pendingUser.otp}. U 5 daqiqa ichida amal qiladi.`;
+    await MailService.sendMail(
+      email,
+      "Hisobingizni aktivlashtirish uchun OTP",
+      emailBody
+    );
+
+    // Javob yuborish
     res.status(StatusCodes.CREATED).json({
       success: true,
-      msg: "Successfully signed up! Please check your email for the OTP to activate your account.",
+      msg: "Ro'yxatdan o'tdingiz! Iltimos, hisobni aktivlashtirish uchun emailingizni tekshirib ko'ring.",
     });
   });
-
-  //   static signUp = asyncHandler(async (req, res) => {
-  //     const {
-  //       full_name,
-  //       lastName,
-  //       phone_number,
-  //       email,
-  //       password,
-  //       address: { country, city, street, apartmant, zip_code },
-  //       comment,
-  //     } = req.body;
-
-  //     const user = await FurUser.findOne({ email });
-  //     if (user) {
-  //       throw new HttpException(
-  //         StatusCodes.UNAUTHORIZED,
-  //         ReasonPhrases.UNAUTHORIZED,
-  //         "This email already used!"
-  //       );
-  //     }
-
-  //     await FurUser.create({
-  //       full_name,
-  //       lastName,
-  //       phone_number,
-  //       email,
-  //       password: await HashingHelper.generatePassword(password),
-  //       address: { country, city, street, apartmant, zip_code },
-  //       comment,
-  //     });
-
-  //     const otp = generateOTP();
-  //     user.otp = otp;
-  //     user.otpExpiration = Date.now() + 5 * 60 * 1000;
-  //     await user.save();
-
-  //     const emailBody = `Your OTP for activation is: ${otp}. It will expire in 15 minutes.`;
-  //     await MailService.sendMail(email, "Account Activation OTP", emailBody);
-
-  //     res.status(StatusCodes.CREATED).json({
-  //       success: true,
-  //       msg: "Successfully signed up! Please check your email for the OTP to activate your account.",
-  //     });
-  //   });
-
+  static VerifyOTP = asyncHandler(async (req, res) => {
+    const { otp, email } = req.body;
+  
+    if (!pendingUser || pendingUser.email !== email) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Foydalanuvchi topilmadi yoki xatolik yuz berdi.",
+      });
+    }
+  
+    if (Date.now() > pendingUser.otpExpiration) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "OTP muddati tugagan.",
+      });
+    }
+  
+    if (parseInt(otp, 10) === pendingUser.otp) {
+      // ✅ Foydalanuvchi bazaga saqlanadi
+      await FurUser.create({
+        ...pendingUser,
+        isActive: true,
+      });
+  
+      pendingUser = null; // O'zgaruvchini tozalash
+  
+      return res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Hisobingiz muvaffaqiyatli aktivlashtirildi!",
+      });
+    }
+  
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: "OTP noto'g'ri.",
+    });
+  });
   static login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -110,6 +113,16 @@ export class FurnitureUserController {
         "Invalid login credentials!"
       );
     }
+
+    // Foydalanuvchi aktiv bo'lishi kerak
+    if (!user.isActive) {
+      throw new HttpException(
+        StatusCodes.UNAUTHORIZED,
+        ReasonPhrases.UNAUTHORIZED,
+        "Your account is not activated. Please check your email for activation."
+      );
+    }
+
     if (!(await HashingHelper.comparePassword(password, user.password))) {
       throw new HttpException(
         StatusCodes.UNAUTHORIZED,
@@ -119,80 +132,11 @@ export class FurnitureUserController {
     }
 
     const access_token = await JwtHelper.sign(user._id);
-    console.log(email, user, password);
     res.status(StatusCodes.OK).json({ success: true, access_token });
   });
 
+  // == forgot password / reset password / change possword ==
   static forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-    // 1. Foydalanuvchi mavjudligini tekshirish
-    const user = await FurUser.findOne({ email });
-    // if (!user.otp || user.otp !== otp || user.otpExpiration < Date.now()) {
-    //     throw new HttpException(
-    //         StatusCodes.NOT_FOUND,
-    //         ReasonPhrases.NOT_FOUND,
-    //         "User not found!"
-    //       );
-    // }
-    if (!user) {
-      throw new HttpException(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        "User not found!"
-      );
-    }
-    // 2. Yangi OTP yaratish
-    const otp = generateOTP();
-    user.otp = otp;
-    user.otpExpiration = Date.now() + 5 * 60 * 1000; // OTP 5 daqiqa davomida amal qiladi
-
-    await user.save();
-
-    // 3. Email yuborish
-    const emailBody = `Your OTP for password reset is: ${otp}. It will expire in 5 minutes.`;
-    await MailService.sendMail(email, "Password Reset OTP", emailBody);
-
-    // 4. Javob qaytarish
-    res.status(StatusCodes.OK).json({
-      success: true,
-      msg: "Password reset OTP has been sent to your email. Please check your inbox.",
-    });
-  });
-
-  static resetPassword = asyncHandler(async (req, res) => {
-    const { email, otp, newPassword } = req.body;
-    const user = await FurUser.findOne({ email });
-
-    if (!user) {
-      throw new HttpException(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        "User not found!"
-      );
-    }
-
-    // 5. OTPni tekshirish va amal qilish muddati
-    if (!user.otp || user.otp !== otp || user.otpExpiration < Date.now()) {
-      throw new HttpException(
-        StatusCodes.BAD_REQUEST,
-        ReasonPhrases.BAD_REQUEST,
-        "Invalid or expired OTP!"
-      );
-    }
-
-    // 6. Parolni yangilash
-    user.password = await HashingHelper.generatePassword(newPassword);
-    user.otp = null; // OTPni o'chirish
-    user.otpExpiration = null; // OTP muddati o'chirish
-    await user.save();
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      msg: "Password has been successfully updated!",
-    });
-  });
-
-  static sendOTP = asyncHandler(async (req, res) => {
     const { email } = req.body;
     const existingUser = await FurUser.findOne({ email });
     if (!existingUser) {
@@ -211,47 +155,103 @@ export class FurnitureUserController {
       message: "OTP sent successfully.",
     });
   });
+  static resetPassword = asyncHandler(async (req, res) => {
+    const { otp, email, newPassword } = req.body;
 
-  static VerifyOTP = asyncHandler(async (req, res) => {
-    const { otp } = req.body;
-    console.log(otp);
+    // 1. Email orqali foydalanuvchini qidirish
+    const user = await FurUser.findOne({ email });
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: "Foydalanuvchi topilmadi!",
+      });
+    }
 
+    // 2. OTPni tekshirish
     if (!storedOTP || Date.now() > otpExpirationTime) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "OTP amal qilish muddati tugagan.",
       });
     }
-    if (parseInt(otp, 10) === storedOTP) {
-      storedOTP = null; // Clear OTP after successful verification
-      otpExpirationTime = null; // Clear expiration time
-      return res.status(StatusCodes.OK).json({
-        success: true,
-        message: "OTP muvaffaqiyatli tasdiqlandi!",
+
+    if (parseInt(otp, 10) !== storedOTP) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Noto‘g‘ri OTP!",
       });
     }
 
-    res.status(StatusCodes.BAD_REQUEST).json({
-      success: false,
-      message: "OTP noto'g'ri.",
+    // 3. OTP to‘g‘ri bo‘lsa, uni o‘chiramiz va yangi parolni saqlaymiz
+    storedOTP = null; // OTPni tozalash
+    otpExpirationTime = null; // Muddati tugagan vaqtni tozalash
+
+    // 4. Yangi parolni o‘rnatish
+    user.password = await HashingHelper.generatePassword(newPassword);
+    await user.save();
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Parol muvaffaqiyatli yangilandi!",
+    });
+  });
+  static changePassword = asyncHandler(async (req, res) => {
+    const { email, oldPassword, newPassword } = req.body;
+
+    // 1. Foydalanuvchini topish va parolini olish
+    const user = await FurUser.findOne({ email }).select("+password"); // `password` ni olish uchun qo‘shildi
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: "Foydalanuvchi topilmadi!",
+      });
+    }
+
+    // 2. Foydalanuvchining paroli mavjudligini tekshirish
+    if (!user.password) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message:
+          "Foydalanuvchi paroli topilmadi! Iltimos, administrator bilan bog‘laning.",
+      });
+    }
+
+    // 3. Eski parolni tekshirish
+    const isPasswordValid = await HashingHelper.comparePassword(
+      oldPassword,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Eski parol noto‘g‘ri!",
+      });
+    }
+
+    // 4. Yangi parolni shifrlash va yangilash
+    user.password = await HashingHelper.generatePassword(newPassword);
+    await user.save();
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Parol muvaffaqiyatli o‘zgartirildi!",
     });
   });
 
-  //   === !! ====
-
+  //   === me / updateUser / deleteUser ====
   static getMe = asyncHandler(async (req, res) => {
     const user = req.body.user;
 
     res.status(StatusCodes.OK).json({ success: true, data: user });
   });
-
   static updateUser = asyncHandler(async (req, res) => {
     const {
       full_name,
       lastName,
       email,
       phone_number,
-      password,
       address: { country, city, street, apartmant, zip_code },
       comment,
     } = req.body;
@@ -264,7 +264,6 @@ export class FurnitureUserController {
         lastName,
         email,
         phone_number,
-        password,
         address: {
           country,
           city,
@@ -279,7 +278,6 @@ export class FurnitureUserController {
 
     res.status(StatusCodes.OK).json({ success: true, user });
   });
-
   static deleteUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -300,6 +298,7 @@ export class FurnitureUserController {
     });
   });
 
+  // === userCount / userTrand / userLocation / userRealTime ===
   static getUserCount = asyncHandler(async (req, res) => {
     const { query } = req.query;
 
@@ -340,5 +339,74 @@ export class FurnitureUserController {
       LoggedInUserCount,
       usersData,
     });
+  });
+  static getUserTrends = asyncHandler(async (req, res) => {
+    try {
+      const { period } = req.query;
+      let groupFormat = "%Y-%m-%d"; // Default: kunlik
+
+      if (period === "weekly") groupFormat = "%Y-%U"; // Haftalik
+      else if (period === "monthly") groupFormat = "%Y-%m"; // Oylik
+
+      const trends = await FurUser.aggregate([
+        {
+          $group: {
+            _id: { $dateToString: { format: groupFormat, date: "$sana" } },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+      ]);
+
+      res.json({ trends });
+    } catch (error) {
+      res.status(500).json({ message: "Xatolik yuz berdi" });
+    }
+  });
+  static getUserLocations = asyncHandler(async (req, res) => {
+    try {
+      const locations = await FurUser.aggregate([
+        {
+          $group: {
+            _id: "$address.country",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      res.json({ locations });
+    } catch (error) {
+      res.status(500).json({ message: "Xatolik yuz berdi" });
+    }
+  });
+  static getRealTimeUsers = asyncHandler(async (req, res) => {
+    try {
+      const todayStart = moment().startOf('day').toDate();
+      const todayEnd = moment().endOf('day').toDate();
+      
+      // Yangi foydalanuvchilarni bugungi sanaga qarab tekshirish
+      const newUsersToday = await FurUser.countDocuments({
+        isActive: true,
+        sana: { $gte: todayStart, $lt: todayEnd } // sana nomi
+      });
+      
+      console.log("Yangi foydalanuvchilar bugun:", newUsersToday);
+  
+      console.log("Bugungi boshlanish:", todayStart.toISOString());
+      console.log("Bugungi tugash:", todayEnd.toISOString());
+  
+      const onlineUsers = await FurUser.countDocuments({ isActive: true });
+  
+      console.log("Aktiv foydalanuvchilar soni:", onlineUsers);
+  
+      console.log("Yangi foydalanuvchilar bugun:", newUsersToday);
+  
+      res.json({ onlineUsers, newUsersToday });
+    } catch (error) {
+      console.error("Xatolik:", error);  // Bu yerda xatolikni konsolda ko‘rishingiz mumkin
+      res.status(500).json({ message: "Xatolik yuz berdi", error: error.message });
+    }
   });
 }

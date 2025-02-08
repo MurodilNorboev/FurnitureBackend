@@ -15,10 +15,10 @@ router.post("/add", authF, checkRole('manage_data'), Products.productsall);
 router.get("/all", Products.product_get_all);
 router.put("/edit/:id", authF, checkRole('manage_data'), updataV(), validate, Products.productEdit);
 router.delete("/delete/:id", authF, checkRole('manage_data'), Products.delet);
-router.get("/with-discount", Products.product_get_all_with_discount); // with discounts
+router.get("/with-discount", authF, Products.product_get_all_with_discount); // with discounts
 
 // add Cart
-router.post("/order", auth, addCartV(), validate, Products.addToCart); // add
+router.post("/order", authF, addCartV(), validate, Products.addToCart); // add
 router.get("/cart-count", Products.getAllCarts); // get all search 
 router.delete("/delete", auth, Products.deletCart);
 router.post("/update", auth, Products.updateCartItem); // update POST
