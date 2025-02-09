@@ -1,6 +1,6 @@
-import { router as UserRouter } from "./user/user.route.js";
 import { API_CONSTANTS } from "../constants/api.constant.js";
 import { UploadRouter } from "./upload/upload.router.js";
+import { router as UserRouter } from "./user/user.route.js";
 import { router as UserFurRouter } from "./Admin/admin.users.js";
 import { router as FurnitureRouter } from "./Admin/products.router.js";
 import { router as ProductsRouter } from "./Admin/products.router.js";
