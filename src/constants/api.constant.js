@@ -6,6 +6,7 @@ export class API_CONSTANTS {
     static USERFUR = "/userFur"
     static SESSIONUSER = "/userS"
     static PRODUCTS = "/product"
+    static ORDER = "/order"
     static PAYMENT = "/payment"
     static LIKES = "/likes"
 }

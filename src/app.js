@@ -25,12 +25,7 @@ Routes.forEach((item) => {
 
 server.listen(PORT, () => {
   console.log(`Server Run ${PORT}!`); 
-});
-
-
-
-
-
+}); 
 
 
 

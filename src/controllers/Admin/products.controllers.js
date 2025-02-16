@@ -6,6 +6,7 @@ import { Product } from "../../models/Admin/product.model.js";
 import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
 import moment from "moment";
 import { FurUser } from "../../models/Admin/user.models.js";
+import jwt from 'jsonwebtoken';
 
 export class Products {
   static productsall = asyncHandler(async (req, res) => {
@@ -376,9 +377,91 @@ export class Products {
     });
   });
 
+  // static getAllCarts = asyncHandler(async (req, res) => {
+  //   const { query } = req.query;
+
+  //   const searchFilter = query
+  //     ? {
+  //         $or: [
+  //           { full_name: { $regex: query, $options: "i" } },
+  //           { categories: { $regex: query, $options: "i" } },
+  //           { email: { $regex: query, $options: "i" } },
+  //         ],
+  //       }
+  //     : {};
+
+  //   // Savatlar sonini hisoblash
+  //   const CartCount = await MyFurCart.countDocuments(searchFilter);
+
+  //   // Kirgan foydalanuvchilarning savatlar sonini hisoblash
+  //   const LoggedInCartCount = await MyFurCart.countDocuments({
+  //     ...searchFilter,
+  //     "user.lastLogin": { $ne: null },
+  //   });
+
+  //   if (!CartCount) {
+  //     return res
+  //       .status(404)
+  //       .json({ success: false, message: "Savat topilmadi" });
+  //   }
+
+  //   // 2️⃣ Savatdagi barcha mahsulotlarni olish
+  //   const cartData = await MyFurCart.find(searchFilter)
+  //     .populate([
+  //       {
+  //         path: "furniture",
+  //         select:
+  //           "-image1 -image2 -image3 -image4 -videos1 -ArmDimensions_HWD -SeatDimensions_HWD -LegHeight_CM -PackagingDimensions -Weight_KG -Assembly -CaringInstructions",
+  //       },
+  //       { path: "user" },
+  //       { path: "items" },
+  //     ])
+  //     .populate([{ path: "items.product" }])
+  //     .sort({ sana: -1 });
+
+  //   // 3️⃣ Savatdagi barcha mahsulotlar va kerakli malumotlarni ajratib olish
+  //   const items = cartData.map((cart) => ({
+  //     ...cart.toObject(),
+  //     items: cart.items.map((item) => ({
+  //       item_id: item._id, // 🛑 item_id ni qo'shyapmiz
+  //       product: item.product,
+  //       quantity: item.quantity,
+  //       totalCost: item.totalCost,
+  //       setColors: item.setColors,
+  //       widthType: item.widthType,
+  //     })),
+  //   }));
+
+  //   // 4️⃣ Natijani qaytarish
+  //   res.status(200).json({
+  //     success: true,
+  //     CartCount,
+  //     LoggedInCartCount,
+  //     cartsData: items,
+  //   });
+  // });
+
   static getAllCarts = asyncHandler(async (req, res) => {
     const { query } = req.query;
-
+  
+    // Tokenni olish
+    const token = req.headers.authorization?.split(" ")[1]; // "Bearer <token>" formatida bo'lishi kerak
+  
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Token topilmadi" });
+    }
+  
+    // Tokenni dekodlash
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET); // JWT_SECRET serverning muhim konfiguratsiya parametri bo'lishi kerak
+    } catch (err) {
+      return res.status(401).json({ success: false, message: "Token noto'g'ri" });
+    }
+  
+    // Foydalanuvchining ID sini olish
+    const userId = decoded.id; // Token ichida foydalanuvchi ID saqlanishi kerak
+  
     const searchFilter = query
       ? {
           $or: [
@@ -388,24 +471,27 @@ export class Products {
           ],
         }
       : {};
-
-    // Savatlar sonini hisoblash
+  
+    // Savatlar sonini hisoblash (umumiy)
     const CartCount = await MyFurCart.countDocuments(searchFilter);
-
-    // Kirgan foydalanuvchilarning savatlar sonini hisoblash
+  
+    // Kirgan foydalanuvchining savatlarini hisoblash
     const LoggedInCartCount = await MyFurCart.countDocuments({
       ...searchFilter,
-      "user.lastLogin": { $ne: null },
+      user: userId, // faqat shu foydalanuvchining savatlarini hisoblash
     });
-
+  
     if (!CartCount) {
       return res
         .status(404)
         .json({ success: false, message: "Savat topilmadi" });
     }
-
-    // 2️⃣ Savatdagi barcha mahsulotlarni olish
-    const cartData = await MyFurCart.find(searchFilter)
+  
+    // 2️⃣ Savatdagi barcha mahsulotlarni olish (faqat shu foydalanuvchi uchun)
+    const cartData = await MyFurCart.find({
+      ...searchFilter,
+      user: userId, // faqat shu foydalanuvchining savatlarini olish
+    })
       .populate([
         {
           path: "furniture",
@@ -417,8 +503,7 @@ export class Products {
       ])
       .populate([{ path: "items.product" }])
       .sort({ sana: -1 });
-
-    // 3️⃣ Savatdagi barcha mahsulotlar va kerakli malumotlarni ajratib olish
+  
     // 3️⃣ Savatdagi barcha mahsulotlar va kerakli malumotlarni ajratib olish
     const items = cartData.map((cart) => ({
       ...cart.toObject(),
@@ -431,7 +516,7 @@ export class Products {
         widthType: item.widthType,
       })),
     }));
-
+  
     // 4️⃣ Natijani qaytarish
     res.status(200).json({
       success: true,
@@ -439,6 +524,19 @@ export class Products {
       LoggedInCartCount,
       cartsData: items,
     });
+  });
+  
+  static getCartDatails = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    
+    try {
+      if (!userId) { return res.status(400).json({ success: false, msg: "Invalid ID format" }); }
+      const cart = await MyFurCart.findOne({ user: userId }).populate("items.product");
+      if (!cart) { return res.status(StatusCodes.NOT_FOUND).json({ success: false, msg: "Cart not found" }); }
+      res.status(StatusCodes.OK).json({ success: true, data: cart, users: cart.user });
+    } catch (error) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, error: error.message });
+    }
   });
 
   static deletCart = async (req, res) => {
@@ -498,7 +596,9 @@ export class Products {
     }
 
     // 2️⃣ Cart ni topamiz
-    const cart = await MyFurCart.findOne({ furniture: fur_id }).populate('items.product')
+    const cart = await MyFurCart.findOne({ furniture: fur_id }).populate(
+      "items.product"
+    );
     if (!cart) {
       return res.status(400).json({ success: false, msg: "Cart not found" });
     }

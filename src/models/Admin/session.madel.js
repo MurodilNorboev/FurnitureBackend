@@ -3,13 +3,15 @@ import { DB_CONSTANTS } from "../../constants/db.constants.js";
 
 export const sessionSchema = new Schema(
   {
-    date: { 
-      type: Date,  // Sana tipini Date qilib belgilash
-      required: true,
-    },
-    direct: { type: Number, required: true },
-    referral: { type: Number, required: true },
-    organic: { type: Number, required: true },
+    userId: { type: String, required: true },
+    products: [
+      {
+        productId: { type: String, required: true },
+        quantity: { type: Number, required: true },
+      },
+    ],
+    totalAmount: { type: Number, required: true },
+    paymentStatus: { type: String, default: "pending" },
   },
   { timestamps: true, versionKey: false }
 );

@@ -19,7 +19,8 @@ router.get("/with-discount", authF, Products.product_get_all_with_discount); // 
 
 // add Cart
 router.post("/order", authF, addCartV(), validate, Products.addToCart); // add
-router.get("/cart-count", Products.getAllCarts); // get all search 
+router.get("/cart-count",authF, Products.getAllCarts); // get all search 
+router.get("/cart-counts/:userId", Products.getCartDatails)
 router.delete("/delete", auth, Products.deletCart);
 router.post("/update", auth, Products.updateCartItem); // update POST
 router.get("/get-updated/:userId", Products.viewCart); // view cart GET
