@@ -4,29 +4,31 @@ import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
 import mongoose from "mongoose";
 
 export class OrderController {
-
   static CreateOrder = asyncHandler(async (req, res) => {
     try {
       const { userId, deliveryAddress, userinfo } = req.body;
-      console.log('userId: ', userId);
+      console.log("userId: ", userId);
 
       const userID = new mongoose.Types.ObjectId(userId);
-      console.log('userID: ', userID);
-      
+      console.log("userID: ", userID);
+
       // **Foydalanuvchining savatini olish**
-      let userCart = await MyFurCart.findOne({ user: userId }).populate("items.product");
-  
+      let userCart = await MyFurCart.findOne({ user: userId }).populate(
+        "items.product",
+        "OrderItems.product"
+      );
+
       if (!userCart || userCart.items.length === 0) {
         return res.status(400).json({
           success: false,
           message: "Cart is empty or not found!",
         });
       }
-  
+
       // **paymentMethod va shippingMethodni MyFurCartdan olish**
       let paymentMethod = userCart.paymentMethod;
       let shippingMethod = userCart.shippingMethod;
-  
+
       // **Buyurtma uchun vaqtinchalik obyekt yaratish**
       const tempOrder = {
         userinfo,
@@ -44,25 +46,27 @@ export class OrderController {
           item_id: item.item_id,
         })),
       };
-  
+
       // **Orderni qo'shish va saqlash**
       userCart.order.push(tempOrder);
-  
+
       // **Savatdagi itemlarni tozalash (bo'shatish)**
       userCart.items = [];
-  
+
       // **Agar savatdagi itemlar bo'sh bo'lsa, furniture ni ham tozalash**
       if (userCart.items.length === 0) {
         userCart.furniture = []; // furniture ni tozalash
       }
-  
+
       await userCart.save();
-  
+
       // **Orderni qayta olish va populate qilish**
-      const updatedCart = await MyFurCart.findOne({ user: userId }).populate("order.OrderItems.product");
-  
+      const updatedCart = await MyFurCart.findOne({ user: userId }).populate(
+        "order.OrderItems.product"
+      );
+
       const newOrder = updatedCart.order[updatedCart.order.length - 1]; // Yangi orderni olish
-  
+
       res.status(201).json({
         success: true,
         message: "Order successfully created!",
@@ -88,7 +92,9 @@ export class OrderController {
       });
     }
 
-    const updatedCart = await MyFurCart.findOne({ user: userId }).populate("order.OrderItems.product");
+    const updatedCart = await MyFurCart.findOne({ user: userId }).populate(
+      "order.OrderItems.product"
+    );
 
     res.status(StatusCodes.OK).json({
       success: true,

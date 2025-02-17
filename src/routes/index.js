@@ -16,9 +16,9 @@ export const Routes = [
   { path: API_CONSTANTS.USERFUR, router: UserFurRouter },
   { path: API_CONSTANTS.SESSIONUSER, router: FurnitureRouter },
   { path: API_CONSTANTS.PRODUCTS, router: ProductsRouter },
-  { path: API_CONSTANTS.PRODUCTS, router: ChatRouter },
+  { path: API_CONSTANTS.CHAT, router: ChatRouter },
   { path: API_CONSTANTS.ORDER, router: OrderRouter },
   { path: API_CONSTANTS.PAYMENT, router: PaymentRouter},
-  { path: API_CONSTANTS.PAYMENT, router: CheckoutRouter },
+  { path: API_CONSTANTS.CHECKOUT, router: CheckoutRouter },
   { path: API_CONSTANTS.LIKES, router: LikesRouter },
 ];

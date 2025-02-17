@@ -26,7 +26,7 @@ export class StripeController {
       }
 
       const orderData = await MyFurCart.findOne({
-        "order.order_id": orderId,
+        "order._id": orderId,
       }).populate("order.OrderItems.product");
 
       if (!orderData || !orderData.order || orderData.order.length === 0) {
@@ -71,42 +71,27 @@ export class StripeController {
             .json({ success: false, message: "Order items not found!" });
         }
 
-        let totalAmount = 0;
         const shippingCost =
-          orderData.shippingMethod === "FEDEX" ? 15 * 100 : 0; // 15$ ni sentga o'tkazamiz (Stripe sent bilan ishlaydi)
+          orderData.shippingMethod === "FEDEX" ? 15 * 100 : 0; // 15$ ni sentga o'tkazamiz
 
-        const lineItems = orderData.order[0].OrderItems.map((item) => {
-          let unitAmount = item.totalCost * 100; // Stripe uchun sentga o‘tkazish
+        // ✅ **ASOSIY XATONI TUZATDIK**
+        const totalAmount = orderData.subTotalCost; // Umumiy narxni olib qo‘yish
 
-          if (isNaN(unitAmount) || unitAmount <= 0) {
-            console.error(
-              `Invalid unit amount for product ${item.product.Feature}:`,
-              unitAmount
-            );
-            return null;
-          }
-
-          return {
+        const lineItems = [
+          {
             price_data: {
               currency: "usd",
               product_data: {
-                name: item.product.Feature,
-                description: item.product.description,
-                images: [item.product.image],
+                name: "Total Order Cost",
+                description: "Total amount for all order items",
               },
-              unit_amount: unitAmount / item.quantity, // **Har bir mahsulot narxi to‘g‘ri hisoblanishi uchun**
+              unit_amount: totalAmount * 100, // Stripe uchun sentga o‘tkazish
             },
-            quantity: item.quantity,
-          };
-        }).filter(Boolean);
+            quantity: 1, // Barcha buyurtmalar uchun bitta umumiy qiymat
+          },
+        ];
 
-        if (lineItems.length === 0) {
-          return res
-            .status(400)
-            .json({ success: false, message: "Invalid line items!" });
-        }
-
-        // Shipping costni qo'shamiz
+        // **Shipping costni qo‘shish**
         if (shippingCost > 0) {
           lineItems.push({
             price_data: {
@@ -121,8 +106,6 @@ export class StripeController {
           });
         }
 
-        totalAmount += shippingCost; // Umumiy summaga shipping qo‘shish
-
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ["card"],
           line_items: lineItems,
@@ -130,6 +113,7 @@ export class StripeController {
           success_url: "http://localhost:3000/order",
           cancel_url: "http://localhost:3000/",
         });
+
         return res.status(200).json({ success: true, url: session.url });
       }
 
@@ -146,31 +130,33 @@ export class StripeController {
     }
   };
 
-  static getUserSessions = async (req, res) => {
+  static getPurchasedOrders = async (req, res) => {
+    const { userId } = req.params;
     try {
-      const { sessionId } = req.params; // faqat sessionId ni olish
-
-      if (!sessionId) {
+      // Foydalanuvchining stripeCustomerId sini MyFurCart modelidan olish
+      const userStripeId = await MyFurCart.findOne({ user: userId });
+  
+      console.log("User ID:", userId);
+      console.log("Stripe Customer ID:", userStripeId ? userStripeId.stripeCustomerId : "Not Found");
+  
+      if (!userStripeId || !userStripeId.stripeCustomerId) {
         return res
           .status(400)
-          .json({ success: false, message: "sessionId is required!" });
+          .json({ success: false, message: "Stripe customer ID not found!" });
       }
-
-      // Stripe API orqali sessiyani tekshirish
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-      if (!session) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Session not found!" });
-      }
-
-      return res.status(200).json({ success: true, session });
+  
+      // To'g'ri customer ID bilan Stripe'dan buyurtmalarni olish
+      const orders = await stripe.checkout.sessions.list({
+        customer: userStripeId.stripeCustomerId, // Stripe customer ID
+      });
+  
+      // Natijani yuborish
+      res.status(200).json({ success: true, data: orders.data });
     } catch (error) {
-      console.error("Error fetching session:", error);
-      return res.status(500).json({
+      console.error("Error fetching purchased orders:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Error retrieving session",
+        message: "Internal Server Error",
         error: error.message,
       });
     }

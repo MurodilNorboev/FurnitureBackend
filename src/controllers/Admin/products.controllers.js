@@ -352,7 +352,6 @@ export class Products {
       0
     );
     cart.deliveryFee = 0; // Example, assuming free delivery for now
-
     await cart.save();
 
     // Clean response data to avoid unnecessary fields
@@ -375,6 +374,7 @@ export class Products {
       msg: existingItem ? "Cart updated" : "Item added to cart",
       datas: cleanedData,
     });
+
   });
 
   // static getAllCarts = asyncHandler(async (req, res) => {

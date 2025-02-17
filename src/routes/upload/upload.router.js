@@ -5,16 +5,14 @@ import { UploadMulter } from "../../utils/multer.js";
 export const UploadRouter = Router();
 
 UploadRouter.post(
-  '/',
+  "/",
   UploadMulter.fields([
-    { name: 'image', maxCount: 10 },
-    { name: 'image1', maxCount: 10 },
-    { name: 'image2', maxCount: 10 },
-    { name: 'image3', maxCount: 10 },
-    { name: 'image4', maxCount: 10 },
-    { name: 'image5', maxCount: 10 },
-    { name: 'image6', maxCount: 10 },
-    { name: 'image7', maxCount: 10 },
+    { name: "image", maxCount: 10 },
+    { name: "image1", maxCount: 10 },
+    { name: "image2", maxCount: 10 },
+    { name: "image3", maxCount: 10 },
+    { name: "image4", maxCount: 10 },
+    { name: "checkImg", maxCount: 10 },
   ]),
   uploadFile
 );

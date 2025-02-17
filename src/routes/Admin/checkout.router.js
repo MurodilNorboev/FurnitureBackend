@@ -4,6 +4,6 @@ import { auth } from "../../middleware/auts.middleware.js";
 
 export const router = Router();
 
-router.post("/checkout",  CartController.Checkout); // checkout
+router.post("/checkouts",  CartController.Checkout); // checkout
 
 router.get("/get-checkout/:userId", CartController.GetCheckoutCart); // get update

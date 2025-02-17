@@ -55,11 +55,11 @@ export const Payment = model(DB_CONSTANTS.PAYMENT, PaymentSchema, DB_CONSTANTS.P
 //       required: true,
 //       default: 0,
 //     },
-//     shippingMethod: {
-//       type: String,
-//       enum: ["FEDEX", "SELF_PICKUP"],
-//       required: false,
-//     },
+    // shippingMethod: {
+    //   type: String,
+    //   enum: ["FEDEX", "SELF_PICKUP"],
+    //   required: false,
+    // },
 //     paymentMethod: {
 //       type: String,
 //       enum: ["CASH", "VISA"],

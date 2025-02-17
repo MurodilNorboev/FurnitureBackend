@@ -1,14 +1,16 @@
 import { Product } from "../../models/Admin/product.model.js";
 import { asyncHandler } from "../../middleware/asynnc-handler.middleware.js";
 import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
+import { StatusCodes } from "http-status-codes";
 
 export class CartController {
   static Checkout = asyncHandler(async (req, res) => {
+   try {
     const { userId, shippingMethod, paymentMethod, productId } = req.body;
 
     // Foydalanuvchining savatini olish
     let userCart = await MyFurCart.findOne({ user: userId }).populate(
-      "items.product"
+      "items.product", "order.OrderItems.product"
     );
 
     if (!userCart) {
@@ -77,6 +79,9 @@ export class CartController {
       cart: userCart,
       totalCost: userCart.totalCost,
     });
+   } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: error });
+   }
   });
 
   static GetCheckoutCart = asyncHandler(async (req, res) => {
@@ -100,3 +105,4 @@ export class CartController {
     });
   });
 }
+
