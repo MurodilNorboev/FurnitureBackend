@@ -6,3 +6,5 @@ export const router = Router();
 router.post("/create-checkout-session", StripeController.createCheckoutSession);
 
 router.get("/webhook/:userId", StripeController.getPurchasedOrders);
+
+router.get("/getOrderList", StripeController.getOrderList)

@@ -13,7 +13,6 @@ let otpExpirationTime = null;
 let pendingUser = null;
 
 export class FurnitureUserController {
-
   // sig-up/ verify-OTP / login
   static signUp = asyncHandler(async (req, res) => {
     const {
@@ -66,36 +65,36 @@ export class FurnitureUserController {
   });
   static VerifyOTP = asyncHandler(async (req, res) => {
     const { otp, email } = req.body;
-  
+
     if (!pendingUser || pendingUser.email !== email) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "Foydalanuvchi topilmadi yoki xatolik yuz berdi.",
       });
     }
-  
+
     if (Date.now() > pendingUser.otpExpiration) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "OTP muddati tugagan.",
       });
     }
-  
+
     if (parseInt(otp, 10) === pendingUser.otp) {
       // ✅ Foydalanuvchi bazaga saqlanadi
       await FurUser.create({
         ...pendingUser,
         isActive: true,
       });
-  
+
       pendingUser = null; // O'zgaruvchini tozalash
-  
+
       return res.status(StatusCodes.OK).json({
         success: true,
         message: "Hisobingiz muvaffaqiyatli aktivlashtirildi!",
       });
     }
-  
+
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
       message: "OTP noto'g'ri.",
@@ -381,32 +380,35 @@ export class FurnitureUserController {
       res.status(500).json({ message: "Xatolik yuz berdi" });
     }
   });
+
   static getRealTimeUsers = asyncHandler(async (req, res) => {
     try {
-      const todayStart = moment().startOf('day').toDate();
-      const todayEnd = moment().endOf('day').toDate();
-      
+      const todayStart = moment().startOf("day").toDate();
+      const todayEnd = moment().endOf("day").toDate();
+
       // Yangi foydalanuvchilarni bugungi sanaga qarab tekshirish
       const newUsersToday = await FurUser.countDocuments({
         isActive: true,
-        sana: { $gte: todayStart, $lt: todayEnd } // sana nomi
+        sana: { $gte: todayStart, $lt: todayEnd }, // sana nomi
       });
-      
+
       console.log("Yangi foydalanuvchilar bugun:", newUsersToday);
-  
+
       console.log("Bugungi boshlanish:", todayStart.toISOString());
       console.log("Bugungi tugash:", todayEnd.toISOString());
-  
+
       const onlineUsers = await FurUser.countDocuments({ isActive: true });
-  
+
       console.log("Aktiv foydalanuvchilar soni:", onlineUsers);
-  
+
       console.log("Yangi foydalanuvchilar bugun:", newUsersToday);
-  
+
       res.json({ onlineUsers, newUsersToday });
     } catch (error) {
-      console.error("Xatolik:", error);  // Bu yerda xatolikni konsolda ko‘rishingiz mumkin
-      res.status(500).json({ message: "Xatolik yuz berdi", error: error.message });
+      console.error("Xatolik:", error); // Bu yerda xatolikni konsolda ko‘rishingiz mumkin
+      res
+        .status(500)
+        .json({ message: "Xatolik yuz berdi", error: error.message });
     }
   });
 }
