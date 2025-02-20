@@ -377,75 +377,11 @@ export class Products {
 
   });
 
-  // static getAllCarts = asyncHandler(async (req, res) => {
-  //   const { query } = req.query;
-
-  //   const searchFilter = query
-  //     ? {
-  //         $or: [
-  //           { full_name: { $regex: query, $options: "i" } },
-  //           { categories: { $regex: query, $options: "i" } },
-  //           { email: { $regex: query, $options: "i" } },
-  //         ],
-  //       }
-  //     : {};
-
-  //   // Savatlar sonini hisoblash
-  //   const CartCount = await MyFurCart.countDocuments(searchFilter);
-
-  //   // Kirgan foydalanuvchilarning savatlar sonini hisoblash
-  //   const LoggedInCartCount = await MyFurCart.countDocuments({
-  //     ...searchFilter,
-  //     "user.lastLogin": { $ne: null },
-  //   });
-
-  //   if (!CartCount) {
-  //     return res
-  //       .status(404)
-  //       .json({ success: false, message: "Savat topilmadi" });
-  //   }
-
-  //   // 2️⃣ Savatdagi barcha mahsulotlarni olish
-  //   const cartData = await MyFurCart.find(searchFilter)
-  //     .populate([
-  //       {
-  //         path: "furniture",
-  //         select:
-  //           "-image1 -image2 -image3 -image4 -videos1 -ArmDimensions_HWD -SeatDimensions_HWD -LegHeight_CM -PackagingDimensions -Weight_KG -Assembly -CaringInstructions",
-  //       },
-  //       { path: "user" },
-  //       { path: "items" },
-  //     ])
-  //     .populate([{ path: "items.product" }])
-  //     .sort({ sana: -1 });
-
-  //   // 3️⃣ Savatdagi barcha mahsulotlar va kerakli malumotlarni ajratib olish
-  //   const items = cartData.map((cart) => ({
-  //     ...cart.toObject(),
-  //     items: cart.items.map((item) => ({
-  //       item_id: item._id, // 🛑 item_id ni qo'shyapmiz
-  //       product: item.product,
-  //       quantity: item.quantity,
-  //       totalCost: item.totalCost,
-  //       setColors: item.setColors,
-  //       widthType: item.widthType,
-  //     })),
-  //   }));
-
-  //   // 4️⃣ Natijani qaytarish
-  //   res.status(200).json({
-  //     success: true,
-  //     CartCount,
-  //     LoggedInCartCount,
-  //     cartsData: items,
-  //   });
-  // });
-
   static getAllCarts = asyncHandler(async (req, res) => {
     const { query } = req.query;
   
     // Tokenni olish
-    const token = req.headers.authorization?.split(" ")[1]; // "Bearer <token>" formatida bo'lishi kerak
+    const token = req.headers.authorization.split(" ")[1]; // "Bearer <token>" formatida bo'lishi kerak
   
     if (!token) {
       return res.status(401).json({ success: false, message: "Token topilmadi" });
@@ -574,7 +510,7 @@ export class Products {
 
     // Agar cart bo‘sh bo‘lsa, o‘chirish
     if (
-      (await MyFurCart.findById(updatedCart._id))?.furniture.length === 0 &&
+      (await MyFurCart.findById(updatedCart._id)).furniture.length === 0 &&
       updatedCart.items.length === 0
     ) {
       await MyFurCart.findByIdAndDelete(updatedCart._id);

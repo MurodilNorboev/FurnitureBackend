@@ -3,7 +3,7 @@ import { permissions, SUPER_ADMIN, ADMIN_PLUS, ADMIN, BASIC_ADMIN } from "../con
 
 const checkRole = (requiredPermission, requiredRole) => {
   return (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.headers.authorization.split(" ")[1];
 
     if (!token) {
       return res.status(401).json({
@@ -35,7 +35,7 @@ const checkRole = (requiredPermission, requiredRole) => {
         }
       }
 
-      if (permissions[userRole]?.includes(requiredPermission)) {
+      if (permissions[userRole].includes(requiredPermission)) {
         return next();
       }
 
