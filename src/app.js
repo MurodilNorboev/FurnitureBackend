@@ -1,48 +1,82 @@
+// import express from "express";
+// import { ENVIROVMENT, PORT } from "./utils/secrets.js";
+// import { Routes } from "./routes/index.js";
+// import { MONGODB_CONNECT } from "./utils/datamase.config.js";
+// import cors from "cors";
+// import { errorMiddleware } from "./middleware/error.middleware.js";
+// import { readFileSync } from "fs";
+// import swaggerUI from "swagger-ui-express";
+// import { createServer } from "http";
+// import { Server as SocketServer } from "socket.io";
+
+// const app = express(),
+//   server = createServer(app),
+//   io = new SocketServer(server, {
+//     cors: {
+//       origin: [
+//         "https://my-furniture-store.vercel.app",
+//         "https://furnitureadmindashboard.vercel.app",
+//         "https://camping-car.vercel.app",
+//       ],
+//     },
+//   });
+
+// io.on("connection", (socket) => {
+//   console.log("Client connected"),
+//     socket.on("updateCart", (data) => io.emit("cartUpdated", data));
+//   socket.on("disconnect", () => console.log("Client disconnected"));
+// });
+
+// void MONGODB_CONNECT();
+// app.use(express.json(), express.urlencoded({ extended: true }), cors());
+
+// if (ENVIROVMENT === "development")
+//   app.use(
+//     "/api-docs",
+//     swaggerUI.serve,
+//     swaggerUI.setup(
+//       JSON.parse(readFileSync(new URL("./swagger.json", import.meta.url)))
+//     )
+//   );
+
+// Routes.forEach(({ path, router }) => app.use(path, router));
+// app.use(errorMiddleware);
+
+// server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}!`));
+
 import express from "express";
 import { ENVIROVMENT, PORT } from "./utils/secrets.js";
 import { Routes } from "./routes/index.js";
 import { MONGODB_CONNECT } from "./utils/datamase.config.js";
-import cors from "cors";
+import cors from "cors";  // 'corst' -> 'cors' bo'lishi kerak
 import { errorMiddleware } from "./middleware/error.middleware.js";
-import { readFileSync } from "fs";
-import swaggerUI from "swagger-ui-express";
-import { createServer } from "http";
-import { Server as SocketServer } from "socket.io";
+import { readFileSync } from 'fs';
+import swaggerUI from 'swagger-ui-express';
 
-const app = express(),
-  server = createServer(app),
-  io = new SocketServer(server, {
-    cors: {
-      origin: [
-        "https://my-furniture-store.vercel.app",
-        "https://furnitureadmindashboard.vercel.app",
-        "https://camping-car.vercel.app",
-      ],
-    },
-  });
+const server = express();
+void MONGODB_CONNECT();
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
 
-io.on("connection", (socket) => {
-  console.log("Client connected"),
-    socket.on("updateCart", (data) => io.emit("cartUpdated", data));
-  socket.on("disconnect", () => console.log("Client disconnected"));
+// CORS sozlamalarini o'rnatish
+server.use(cors({
+  origin: 'https://furnitureadmindashboard.vercel.app' // Frontend manzilingiz
+}));
+
+server.use(errorMiddleware);
+
+if (ENVIROVMENT === 'development') {
+  const apiDocs = JSON.parse(readFileSync(new URL('./swagger.json', import.meta.url)));
+  server.use("/api-docs", swaggerUI.serve, swaggerUI.setup(apiDocs));
+}
+
+Routes.forEach((item) => {
+  server.use(item.path, item.router);
 });
 
-void MONGODB_CONNECT();
-app.use(express.json(), express.urlencoded({ extended: true }), cors());
-
-if (ENVIROVMENT === "development")
-  app.use(
-    "/api-docs",
-    swaggerUI.serve,
-    swaggerUI.setup(
-      JSON.parse(readFileSync(new URL("./swagger.json", import.meta.url)))
-    )
-  );
-
-Routes.forEach(({ path, router }) => app.use(path, router));
-app.use(errorMiddleware);
-
-server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}!`));
+server.listen(PORT, () => {
+  console.log(`Server Run ${PORT}!`);
+});
 
 // import express from "express";
 // import { ENVIROVMENT, PORT } from "./utils/secrets.js";
@@ -68,7 +102,9 @@ server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}!`));
 // Routes.forEach((item) => {
 //   server.use(item.path, item.router);
 // });
-
+// server.use(cors({
+//   origin: 'https://furnitureadmindashboard.vercel.app' // Frontend manzilingiz
+// }));
 // server.listen(PORT, () => {
 //   console.log(`Server Run ${PORT}!`);
 // });
