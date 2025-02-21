@@ -1,4 +1,4 @@
-import { hash, genSalt, compare } from 'bcrypt';
+import { hash, genSalt, compare } from 'bcryptjs';
 
 export class HashingHelper {
     static generatePassword = async (password) => {
