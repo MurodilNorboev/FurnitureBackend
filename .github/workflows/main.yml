@@ -1,20 +1,20 @@
 name: CD
-
 on:
   push: 
-      branches: [main]
+    branches: [main]
 
 jobs: 
-   build: ubuntu-lates
-   steps: 
-     - name: connect to server and deploy changes
-       uses: appleboy/ssh-action@v1.0.0
-       with: 
-           host: ${{ secrets.HOST }}
-           host: ${{ secrets.USERNAME }}
-           key: ${{ secrets.KEY }}
-           port: 22
-           script: | 
-                 cd project/student-hunter/
-                 git pull origin main
-                 pm2 restart FurnitureBackend
+  build: 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: connect to server and deploy changes
+        uses: appleboy/ssh-action@v1.0.0
+        with: 
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: | 
+            cd project/student-hunter/
+            git pull origin main
+            pm2 restart FurnitureBackend
