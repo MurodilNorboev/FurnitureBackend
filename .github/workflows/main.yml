@@ -6,6 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Create .ssh directory
+        run: mkdir -p ~/.ssh
+
       - name: Add SSH key to known hosts
         run: ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
@@ -20,5 +23,6 @@ jobs:
             cd project/student-hunter/
             git pull origin main
             pm2 restart FurnitureBackend
+
       # - name: Connect to server and deploy changes
       #   uses: appleboy/ssh-action@v1.0.0
