@@ -14,7 +14,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-            cd project/student-hunter/
+            cd FurnitureBackend/
             git pull origin main
-            pm2 restart 0
+            pm2 restart 1
 
