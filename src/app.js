@@ -93,6 +93,9 @@ if (ENVIROVMENT === "development")
       JSON.parse(readFileSync(new URL("./swagger.json", import.meta.url)))
     )
   );
+server.get('/', (req, res) => {
+  res.status(200).send("Server is running");
+})
 
 Routes.forEach(({ path, router }) => app.use(path, router));
 app.use(errorMiddleware);

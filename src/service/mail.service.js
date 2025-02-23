@@ -15,7 +15,7 @@ class MailService {
 
     // Verify connection configuration
     this.transporter.verify()
-      .then(() => console.log("SMTP server is ready"))
+      .then(() => console.log("✅ SMTP server is ready"))
       .catch((error) => console.error("SMTP verification failed:", error));
   }
   async sendMail(to, subject, text) {
