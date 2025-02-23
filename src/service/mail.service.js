@@ -5,7 +5,7 @@ class MailService {
     // Create transporter and connect to SMTP server
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || "465", 10),
+      port: parseInt(process.env.SMTP_PORT || "587", 10),
       secure: process.env.SMTP_SECURE === "true",  // Ensure this is a boolean
       auth: {
         user: process.env.SMTP_USER,
