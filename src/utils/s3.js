@@ -5,17 +5,16 @@ const news3Client = new S3Client({
     region: 'ru-1',
     endpoint: 'https://s3.timeweb.cloud',
     credentials: {
-        accessKeyId: '08NHRLH3VLWTPOBK4F56',
-        secretAccessKey: 'bdc3s2ZOQUfwsCsROWVJRhmB4ECaagi9pTU6xcXr'
+        accessKeyId: 'W1TXVJB0NPM0A03CQKO7',
+        secretAccessKey: 'UwApPCQKSUlZxXCWvQa2kMyyOrCp7ZDcj9vGH82g'
     },
 });
-
 export const sendFile = async (buffer, key) => {
     try {
         const upload = new Upload({
             client: news3Client,
             params: {
-                Bucket: 'bc53f73a-f34a549e-5db2-4145-b006-fdcef6730da4',
+                Bucket: 'bdc26052-furniture',
                 Key: key,
                 Body: buffer,
             },
