@@ -6,44 +6,29 @@ import path from 'path'
 
 export const uploadFile = asyncHandler(async (req, res) => {
   const { image, image1, image2, image3, image4, checkImg } = req.files;
-  
+
   const filePaths = [];
-  
-  const fileGroups = [image, image1, image2, image3, image4, checkImg];
-  
+
+  const fileGroups = [image, image1, image2, image3, image4, checkImg ];
   for (const fileGroup of fileGroups) {
     if (fileGroup) {
       for (const file of fileGroup) {
-        if (!file || !file.buffer || !file.originalname) {
-          continue; // Skip files that are not valid
-        }
-
         const key = v4() + path.extname(file.originalname);
         const filePath = await sendFile(file.buffer, key);
-        
-        filePaths.push(filePath.startsWith('https://') ? filePath : `https://${filePath}`);
+        filePaths.push(filePath.startsWith('http://') ? filePath : `https://${filePath}`);
       }
     }
   }
-  
+
   if (filePaths.length === 0) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
+    return res.status(400).json({
       success: false,
-      msg: 'At least one file is required.',
+      msg: 'At least one image or image1 file is required',
     });
   }
-  
-  res.status(StatusCodes.OK).json({ success: true, filePaths });
+
+  res.status(200).json({ success: true, filePaths });
 });
-
-
-
-
-
-
-
-
-
 
 
 // export const uploadFile = asyncHandler(async (req, res) => {
