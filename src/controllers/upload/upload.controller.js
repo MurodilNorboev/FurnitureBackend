@@ -9,13 +9,15 @@ export const uploadFile = asyncHandler(async (req, res) => {
 
   const filePaths = [];
 
-  const fileGroups = [image, image1, image2, image3, image4, checkImg];
+  const fileGroups = [image, image1, image2, image3, image4, checkImg ];
   for (const fileGroup of fileGroups) {
     if (fileGroup) {
       for (const file of fileGroup) {
         const key = v4() + path.extname(file.originalname);
         const filePath = await sendFile(file.buffer, key);
-        filePaths.push(filePath.startsWith('http://') || filePath.startsWith('https://') ? filePath : `https://${filePath}`);
+        filePaths.unshift(filePath);
+        // filePaths.push(filePath.startsWith('http://') ? filePath : `https://${filePath}`);
+        // filePaths.push(filePath.startsWith('http://') || filePath.startsWith('https://') ? filePath : `https://${filePath}`);
       }
     }
   }
