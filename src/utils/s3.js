@@ -13,7 +13,7 @@ export const sendFile = async (buffer, key) => {
     try {
         const upload = new Upload({
             client: news3Client,
-            params: {
+            params: {               
                 Bucket: 'bdc26052-furniture',
                 Key: key,
                 Body: buffer,
