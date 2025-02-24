@@ -17,7 +17,7 @@ export const uploadFile = asyncHandler(async (req, res) => {
         const filePath = await sendFile(file.buffer, key);
         // replece bolishini oldini olamiz !
         filePaths.push(filePath.startsWith('http://') ? filePath : `https://${filePath}`)
-        filePath.replace('https://https://', 'https://')
+        // filePath.replace('https://https://', 'https://')
       }
     }
   }
