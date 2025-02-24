@@ -15,9 +15,8 @@ export const uploadFile = asyncHandler(async (req, res) => {
       for (const file of fileGroup) {
         const key = v4() + path.extname(file.originalname);
         const filePath = await sendFile(file.buffer, key);
-        filePaths.unshift(filePath);
-        // filePaths.push(filePath.startsWith('http://') ? filePath : `https://${filePath}`);
-        // filePaths.push(filePath.startsWith('http://') || filePath.startsWith('https://') ? filePath : `https://${filePath}`);
+        // filePaths.push(filePath.startsWith('http://') ? filePath : `https://${filePath}`)
+        filePaths.push(filePath.startsWith('http://') || filePath.startsWith('https://') ? filePath.replace(/^https:\/\//, '') : `https://${filePath}`);
       }
     }
   }
