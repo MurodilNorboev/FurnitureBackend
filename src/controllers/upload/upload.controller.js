@@ -1,8 +1,8 @@
-import { StatusCodes } from 'http-status-codes';
-import { asyncHandler } from '../../middleware/async-handler.middleware.js';
-import { sendFile } from '../../utils/s3.js';
-import { v4 } from 'uuid';
-import path from 'path';
+import { StatusCodes } from 'http-status-codes'
+import { asyncHandler } from '../../middleware/asynnc-handler.middleware.js'
+import { sendFile } from '../../utils/s3.js'
+import { v4 } from 'uuid'
+import path from 'path' 
 
 export const uploadFile = asyncHandler(async (req, res) => {
   const { image, image1, image2, image3, image4, checkImg } = req.files;
@@ -45,17 +45,6 @@ export const uploadFile = asyncHandler(async (req, res) => {
 
 
 
-
-
-
-
-
-
-// import { StatusCodes } from 'http-status-codes'
-// import { asyncHandler } from '../../middleware/asynnc-handler.middleware.js'
-// import { sendFile } from '../../utils/s3.js'
-// import { v4 } from 'uuid'
-// import path from 'path' 
 
 // export const uploadFile = asyncHandler(async (req, res) => {
 //     const { image, image1, image2, image3, image4, checkImg } = req.files;
