@@ -39,7 +39,7 @@ if (ENVIROVMENT === "development")
     )
   );
 app.get("/", (req, res) => {
-  res.status(200).send("Server is running");
+  res.status(200).send("✅ Server is running.!");
 });
 
 Routes.forEach(({ path, router }) => app.use(path, router));
