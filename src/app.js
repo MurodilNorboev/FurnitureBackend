@@ -21,9 +21,10 @@ const app = express(),
       ],
     },
   });
+
 io.on("connection", (socket) => {
-  console.log("Client connected"),
-    socket.on("updateCart", (data) => io.emit("cartUpdated", data));
+  console.log("Client connected");
+  socket.on("updateCart", (data) => io.emit("cartUpdated", data));
   socket.on("disconnect", () => console.log("Client disconnected"));
 });
 
@@ -37,12 +38,9 @@ if (ENVIROVMENT === "development")
       JSON.parse(readFileSync(new URL("./swagger.json", import.meta.url)))
     )
   );
-// app.get("/", (req, res) => {
-//   res.status(200).send("✅ Server is running.!");
-// });
-// app.get("/test", (req, res) => {
-//   res.json({ message: "Success" });
-// });
+app.get("/", (req, res) => {
+  res.status(200).send("✅ Server is running.!");
+});
 
 Routes.forEach(({ path, router }) => app.use(path, router));
 app.use(errorMiddleware);

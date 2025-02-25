@@ -340,7 +340,6 @@ export class FurnitureUserController {
     });
   });
   static getUserTrends = asyncHandler(async (req, res) => {
-    try {
       const { period } = req.query;
       let groupFormat = "%Y-%m-%d"; // Default: kunlik
 
@@ -359,13 +358,13 @@ export class FurnitureUserController {
         },
       ]);
 
-      res.json({ trends });
-    } catch (error) {
-      res.status(500).json({ message: "Xatolik yuz berdi" });
-    }
+      if (!trends) {
+          return res.status(404).json({ message: "Trends not found" });
+      }
+
+      res.status(200).json({ trends });
   });
   static getUserLocations = asyncHandler(async (req, res) => {
-    try {
       const locations = await FurUser.aggregate([
         {
           $group: {
@@ -374,15 +373,13 @@ export class FurnitureUserController {
           },
         },
       ]);
-
-      res.json({ locations });
-    } catch (error) {
-      res.status(500).json({ message: "Xatolik yuz berdi" });
-    }
+      if (!locations) {
+          return res.status(404).json({ message: "Locations not found" });
+      }
+      res.status(200).json({ locations });
   });
 
   static getRealTimeUsers = asyncHandler(async (req, res) => {
-    try {
       const todayStart = moment().startOf("day").toDate();
       const todayEnd = moment().endOf("day").toDate();
 
@@ -391,24 +388,12 @@ export class FurnitureUserController {
         isActive: true,
         sana: { $gte: todayStart, $lt: todayEnd }, // sana nomi
       });
-
-      console.log("Yangi foydalanuvchilar bugun:", newUsersToday);
-
-      console.log("Bugungi boshlanish:", todayStart.toISOString());
-      console.log("Bugungi tugash:", todayEnd.toISOString());
+      if (!newUsersToday) {
+          return res.status(404).json({ message: "New users not found" });
+      }
 
       const onlineUsers = await FurUser.countDocuments({ isActive: true });
 
-      console.log("Aktiv foydalanuvchilar soni:", onlineUsers);
-
-      console.log("Yangi foydalanuvchilar bugun:", newUsersToday);
-
-      res.json({ onlineUsers, newUsersToday });
-    } catch (error) {
-      console.error("Xatolik:", error); // Bu yerda xatolikni konsolda ko‘rishingiz mumkin
-      res
-        .status(500)
-        .json({ message: "Xatolik yuz berdi", error: error.message });
-    }
+      res.status(200).json({ onlineUsers, newUsersToday });
   });
 }
