@@ -15,6 +15,7 @@ export const errorMiddleware = (error, req, res, next) => {
         statusMsg,
         msg,
       },
+      msg: "Internal Server Error in Middleware.!",
     });
   } catch (error) {
     return next(error);
