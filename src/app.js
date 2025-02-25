@@ -41,9 +41,9 @@ if (ENVIROVMENT === "development")
 // app.get("/", (req, res) => {
 //   res.status(200).send("✅ Server is running.!");
 // });
-app.get("/test", (req, res) => {
-  res.json({ message: "Success" });
-});
+// app.get("/test", (req, res) => {
+//   res.json({ message: "Success" });
+// });
 
 Routes.forEach(({ path, router }) => app.use(path, router));
 app.use(errorMiddleware);
