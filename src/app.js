@@ -38,8 +38,11 @@ if (ENVIROVMENT === "development")
       JSON.parse(readFileSync(new URL("./swagger.json", import.meta.url)))
     )
   );
-app.get("/", (req, res) => {
-  res.status(200).send("✅ Server is running.!");
+// app.get("/", (req, res) => {
+//   res.status(200).send("✅ Server is running.!");
+// });
+app.get("/test", (req, res) => {
+  res.json({ message: "Success" });
 });
 
 Routes.forEach(({ path, router }) => app.use(path, router));
