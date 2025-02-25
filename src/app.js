@@ -28,7 +28,6 @@ io.on("connection", (socket) => {
 });
 
 void MONGODB_CONNECT();
-app.use(express.json(), express.urlencoded({ extended: true }), cors());
 
 if (ENVIROVMENT === "development")
   app.use(
@@ -47,6 +46,7 @@ if (ENVIROVMENT === "development")
 
 Routes.forEach(({ path, router }) => app.use(path, router));
 app.use(errorMiddleware);
+app.use(express.json(), express.urlencoded({ extended: true }), cors());
 
 server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}!`));
 
