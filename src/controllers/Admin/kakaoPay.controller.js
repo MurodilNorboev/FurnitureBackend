@@ -144,8 +144,8 @@ export class StripeController {
           payment_method_types: ["card"],
           line_items: lineItems,
           mode: "payment",
-          success_url: "http://localhost:3000/order",
-          cancel_url: "http://localhost:3000/",
+          success_url: "https://my-furniture-store.vercel.app/order",
+          cancel_url: "https://my-furniture-store.vercel.app/payment",
         });
 
         return res.status(200).json({ success: true, url: session.url });

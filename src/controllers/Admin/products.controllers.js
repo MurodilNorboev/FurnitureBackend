@@ -6,7 +6,7 @@ import { Product } from "../../models/Admin/product.model.js";
 import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
 import moment from "moment";
 import { FurUser } from "../../models/Admin/user.models.js";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 export class Products {
   static productsall = asyncHandler(async (req, res) => {
@@ -137,12 +137,14 @@ export class Products {
 
     const updated = {};
 
+    // Tekshirish uchun rasm URL-larini yangilash
     if (image) updated.image = image;
     if (image1) updated.image1 = image1;
     if (image2) updated.image2 = image2;
     if (image3) updated.image3 = image3;
     if (image4) updated.image4 = image4;
 
+    // Boshqa ma'lumotlar o'zgargan bo'lsa, ularni ham yangilash
     if (discount) {
       updated.discount = discount;
       updated.discountedPrice = cost - (cost * discount) / 100;
@@ -151,39 +153,41 @@ export class Products {
     const data = await Product.findByIdAndUpdate(
       id,
       {
-        categories,
-        types,
-        Feature,
-        SubCategories,
-        StockNumber,
-        SpecialOffers,
-        desc1,
-        desc2,
-        desc3,
-        desc4,
-        Color,
-        ColorSet,
-        Styles,
-        updated,
-        videos1,
-        description,
-        minWidth,
-        maxWidth,
-        minHeight,
-        maxHeight,
-        ArmDimensions_HWD,
-        SeatDimensions_HWD,
-        LegHeight_CM,
-        PackagingDimensions,
-        Weight_KG,
-        Assembly,
-        NumberOfSeats,
-        CaringInstructions,
-        material,
-        cost,
-        bigCost,
-        discount,
-        count,
+        $set: {
+          categories,
+          types,
+          Feature,
+          SubCategories,
+          StockNumber,
+          SpecialOffers,
+          desc1,
+          desc2,
+          desc3,
+          desc4,
+          Color,
+          ColorSet,
+          Styles,
+          videos1,
+          description,
+          minWidth,
+          maxWidth,
+          minHeight,
+          maxHeight,
+          ArmDimensions_HWD,
+          SeatDimensions_HWD,
+          LegHeight_CM,
+          PackagingDimensions,
+          Weight_KG,
+          Assembly,
+          NumberOfSeats,
+          CaringInstructions,
+          material,
+          cost,
+          bigCost,
+          discount,
+          count,
+          ...updated, 
+        },
       },
       { new: true }
     );
@@ -191,6 +195,25 @@ export class Products {
     res.status(200).json({ success: true, data });
   };
 
+  static productEdit2 = async (req, res) => {
+    const { id } = req.params;
+    const updated = {};
+  
+    // Faqat mavjud bo'lgan rasmlarni yangilaymiz
+    ["image", "image1", "image2", "image3", "image4"].forEach((field) => {
+      if (req.body[field]) updated[field] = req.body[field];
+    });
+  
+    const data = await Product.findByIdAndUpdate(
+      id,
+      { $set: { ...req.body, ...updated } },
+      { new: true }
+    );
+  
+    res.status(200).json({ success: true, data });
+  };
+
+  
   static product_get_id = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -374,30 +397,33 @@ export class Products {
       msg: existingItem ? "Cart updated" : "Item added to cart",
       datas: cleanedData,
     });
-
   });
 
   static getAllCarts = asyncHandler(async (req, res) => {
     const { query } = req.query;
-  
+
     // Tokenni olish
     const token = req.headers.authorization.split(" ")[1]; // "Bearer <token>" formatida bo'lishi kerak
-  
+
     if (!token) {
-      return res.status(401).json({ success: false, message: "Token topilmadi" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Token topilmadi" });
     }
-  
+
     // Tokenni dekodlash
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET); // JWT_SECRET serverning muhim konfiguratsiya parametri bo'lishi kerak
     } catch (err) {
-      return res.status(401).json({ success: false, message: "Token noto'g'ri" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Token noto'g'ri" });
     }
-  
+
     // Foydalanuvchining ID sini olish
     const userId = decoded.id; // Token ichida foydalanuvchi ID saqlanishi kerak
-  
+
     const searchFilter = query
       ? {
           $or: [
@@ -407,22 +433,22 @@ export class Products {
           ],
         }
       : {};
-  
+
     // Savatlar sonini hisoblash (umumiy)
     const CartCount = await MyFurCart.countDocuments(searchFilter);
-  
+
     // Kirgan foydalanuvchining savatlarini hisoblash
     const LoggedInCartCount = await MyFurCart.countDocuments({
       ...searchFilter,
       user: userId, // faqat shu foydalanuvchining savatlarini hisoblash
     });
-  
+
     if (!CartCount) {
       return res
         .status(404)
         .json({ success: false, message: "Savat topilmadi" });
     }
-  
+
     // 2️⃣ Savatdagi barcha mahsulotlarni olish (faqat shu foydalanuvchi uchun)
     const cartData = await MyFurCart.find({
       ...searchFilter,
@@ -439,7 +465,7 @@ export class Products {
       ])
       .populate([{ path: "items.product" }])
       .sort({ sana: -1 });
-  
+
     // 3️⃣ Savatdagi barcha mahsulotlar va kerakli malumotlarni ajratib olish
     const items = cartData.map((cart) => ({
       ...cart.toObject(),
@@ -452,7 +478,7 @@ export class Products {
         widthType: item.widthType,
       })),
     }));
-  
+
     // 4️⃣ Natijani qaytarish
     res.status(200).json({
       success: true,
@@ -461,17 +487,31 @@ export class Products {
       cartsData: items,
     });
   });
-  
+
   static getCartDatails = asyncHandler(async (req, res) => {
     const { userId } = req.params;
-    
+
     try {
-      if (!userId) { return res.status(400).json({ success: false, msg: "Invalid ID format" }); }
-      const cart = await MyFurCart.findOne({ user: userId }).populate("items.product");
-      if (!cart) { return res.status(StatusCodes.NOT_FOUND).json({ success: false, msg: "Cart not found" }); }
-      res.status(StatusCodes.OK).json({ success: true, data: cart, users: cart.user });
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ success: false, msg: "Invalid ID format" });
+      }
+      const cart = await MyFurCart.findOne({ user: userId }).populate(
+        "items.product"
+      );
+      if (!cart) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ success: false, msg: "Cart not found" });
+      }
+      res
+        .status(StatusCodes.OK)
+        .json({ success: true, data: cart, users: cart.user });
     } catch (error) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, error: error.message });
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ success: false, error: error.message });
     }
   });
 
