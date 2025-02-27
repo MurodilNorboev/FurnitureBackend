@@ -93,7 +93,7 @@ export class Products {
     res.status(201).json({ success: true, new_todo });
   });
 
-  static productEdit = async (req, res) => {
+  static productEdit1 = async (req, res) => {
     const {
       categories,
       types,
@@ -186,7 +186,7 @@ export class Products {
           bigCost,
           discount,
           count,
-          ...updated, 
+          ...updated,
         },
       },
       { new: true }
@@ -194,26 +194,113 @@ export class Products {
 
     res.status(200).json({ success: true, data });
   };
-
-  static productEdit2 = async (req, res) => {
+  /// ahrorshi //
+  static productEdit = async (req, res) => {
+    const {
+      categories,
+      types,
+      Feature,
+      SubCategories,
+      StockNumber,
+      SpecialOffers,
+      desc1,
+      Color,
+      ColorSet,
+      Styles,
+      image,
+      image1,
+      image2,
+      image3,
+      image4,
+      videos1,
+      description,
+      minWidth,
+      maxWidth,
+      minHeight,
+      maxHeight,
+      ArmDimensions_HWD,
+      SeatDimensions_HWD,
+      LegHeight_CM,
+      PackagingDimensions,
+      Weight_KG,
+      Assembly,
+      NumberOfSeats,
+      CaringInstructions,
+      material,
+      cost,
+      bigCost,
+      discount,
+      count,
+    } = req.body;
     const { id } = req.params;
-    const updated = {};
-  
-    // Faqat mavjud bo'lgan rasmlarni yangilaymiz
-    ["image", "image1", "image2", "image3", "image4"].forEach((field) => {
-      if (req.body[field]) updated[field] = req.body[field];
-    });
-  
-    const data = await Product.findByIdAndUpdate(
-      id,
-      { $set: { ...req.body, ...updated } },
-      { new: true }
-    );
-  
-    res.status(200).json({ success: true, data });
+
+    try {
+      const todo = await Product.findById(id);
+      if (!todo) {
+        return res.status(404).json({ success: false, msg: "Todo not found!" });
+      }
+      const updated = {
+        categories,
+        types,
+        Feature,
+        SubCategories,
+        StockNumber,
+        SpecialOffers,
+        desc1,
+        Color,
+        ColorSet,
+        Styles,
+        videos1,
+        description,
+        minWidth,
+        maxWidth,
+        minHeight,
+        maxHeight,
+        ArmDimensions_HWD,
+        SeatDimensions_HWD,
+        LegHeight_CM,
+        PackagingDimensions,
+        Weight_KG,
+        Assembly,
+        NumberOfSeats,
+        CaringInstructions,
+        material,
+        cost,
+        bigCost,
+        discount,
+        count,
+      };
+      const handleImageUpdate = async (field, newValue) => {
+        if (newValue) {
+          if (todo[field] !== newValue) {
+            updated[field] = newValue;
+            if (todo[field]) {
+              const key = todo[field].split("s3.timeweb.cloud/")[1];
+              if (key) await deleteFileFromS3(key);
+            }
+          }
+        }
+      };
+      await handleImageUpdate("image", image);
+      await handleImageUpdate("image1", image1);
+      await handleImageUpdate("image2", image2);
+      await handleImageUpdate("image3", image3);
+      await handleImageUpdate("image4", image4);
+      const updatedTodo = await NewTodo.findByIdAndUpdate(id, updated, {
+        new: true,
+        runValidators: true,
+      });
+
+      res.status(200).json({ success: true, data: updatedTodo });
+    } catch (error) {
+      console.error("Error updating todo:", error);
+      res.status(500).json({
+        success: false,
+        msg: error.message || "An unexpected error occurred.",
+      });
+    }
   };
 
-  
   static product_get_id = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -246,7 +333,7 @@ export class Products {
     res.status(200).json({ success: true, data });
   };
 
-  static delet = async (req, res) => {
+  static delet1 = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -264,6 +351,33 @@ export class Products {
       data: todo,
       msg: "Todo muvaffaqiyatli o'chirildi",
     });
+  };
+  static delet = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const todo = await Product.findByIdAndDelete(id);
+
+      if (!todo) {
+        return res.status(404).json({ success: false, msg: "Todo not found!" });
+      }
+
+      // Delete associated files if they exist
+      const fileFields = ["image", "image1", "image2", "image3", "image4"];
+      for (const field of fileFields) {
+        if (todo[field]) {
+          await deleteFileFromS3(todo[field].split("s3.timeweb.cloud/")[1]);
+        }
+      }
+
+      res.status(200).json({ success: true, msg: "Successfully deleted!" });
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+      res.status(500).json({
+        success: false,
+        msg: "Failed to delete todo.",
+        error: error.message,
+      });
+    }
   };
 
   static product_get_all_with_discount = async (req, res) => {
