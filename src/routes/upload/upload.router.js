@@ -13,6 +13,7 @@ UploadRouter.post(
     { name: "image3", maxCount: 10 },
     { name: "image4", maxCount: 10 },
     { name: "checkImg", maxCount: 10 },
+    { name: 'videos1', maxCount: 10 },
   ]),
   uploadFile
 );
