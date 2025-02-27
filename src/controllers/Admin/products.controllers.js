@@ -4,8 +4,6 @@ import { HttpException } from "../../utils/http.exception.js";
 import mongoose from "mongoose";
 import { Product } from "../../models/Admin/product.model.js";
 import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
-import moment from "moment";
-import { FurUser } from "../../models/Admin/user.models.js";
 import jwt from "jsonwebtoken";
 import { deleteFileFromS3 } from "../../utils/s3.js";
 
@@ -94,108 +92,6 @@ export class Products {
     res.status(201).json({ success: true, new_todo });
   });
 
-  static productEdit1 = async (req, res) => {
-    const {
-      categories,
-      types,
-      Feature,
-      SubCategories,
-      StockNumber,
-      SpecialOffers,
-      desc1,
-      desc2,
-      desc3,
-      desc4,
-      Color,
-      ColorSet,
-      Styles,
-      image,
-      image1,
-      image2,
-      image3,
-      image4,
-      videos1,
-      description,
-      minWidth,
-      maxWidth,
-      minHeight,
-      maxHeight,
-      ArmDimensions_HWD,
-      SeatDimensions_HWD,
-      LegHeight_CM,
-      PackagingDimensions,
-      Weight_KG,
-      Assembly,
-      NumberOfSeats,
-      CaringInstructions,
-      material,
-      cost,
-      bigCost,
-      discount,
-      count,
-    } = req.body;
-    const { id } = req.params;
-
-    const updated = {};
-
-    // Tekshirish uchun rasm URL-larini yangilash
-    if (image) updated.image = image;
-    if (image1) updated.image1 = image1;
-    if (image2) updated.image2 = image2;
-    if (image3) updated.image3 = image3;
-    if (image4) updated.image4 = image4;
-
-    // Boshqa ma'lumotlar o'zgargan bo'lsa, ularni ham yangilash
-    if (discount) {
-      updated.discount = discount;
-      updated.discountedPrice = cost - (cost * discount) / 100;
-    }
-
-    const data = await Product.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          categories,
-          types,
-          Feature,
-          SubCategories,
-          StockNumber,
-          SpecialOffers,
-          desc1,
-          desc2,
-          desc3,
-          desc4,
-          Color,
-          ColorSet,
-          Styles,
-          videos1,
-          description,
-          minWidth,
-          maxWidth,
-          minHeight,
-          maxHeight,
-          ArmDimensions_HWD,
-          SeatDimensions_HWD,
-          LegHeight_CM,
-          PackagingDimensions,
-          Weight_KG,
-          Assembly,
-          NumberOfSeats,
-          CaringInstructions,
-          material,
-          cost,
-          bigCost,
-          discount,
-          count,
-          ...updated,
-        },
-      },
-      { new: true }
-    );
-
-    res.status(200).json({ success: true, data });
-  };
-  /// ahrorshi //
   static productEdit = async (req, res) => {
     const {
       categories,
@@ -334,25 +230,6 @@ export class Products {
     res.status(200).json({ success: true, data });
   };
 
-  static delet1 = async (req, res) => {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, msg: "Invalid ID format" });
-    }
-
-    const todo = await Product.findByIdAndDelete(id);
-
-    if (!todo) {
-      return res.status(404).json({ success: false, msg: "Todo topilmadi" });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: todo,
-      msg: "Todo muvaffaqiyatli o'chirildi",
-    });
-  };
   static delet = async (req, res) => {
     const { id } = req.params;
     try {
