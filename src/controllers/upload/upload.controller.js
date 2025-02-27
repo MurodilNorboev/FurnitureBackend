@@ -6,11 +6,11 @@ import path from 'path'
 
 
 export const uploadFile = asyncHandler(async (req, res) => {
-    const { image, image1, image2, image3, image4, checkImg } = req.files;
+    const { image, image1, image2, image3, image4, checkImg, videos1 } = req.files;
   
     const filePaths = [];
   
-    const fileGroups = [image, image1, image2, image3, image4, checkImg ];
+    const fileGroups = [image, image1, image2, image3, image4, checkImg, videos1 ];
     for (const fileGroup of fileGroups) {
       if (fileGroup) {
         for (const file of fileGroup) {
