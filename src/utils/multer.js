@@ -5,7 +5,7 @@ import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 // image and videos
 const checkFileType = (file, cb) => {
-  const filetypes = /jpeg|png|jpg|svg|webp|avif|mp4|mkv|mov|wmv|mp3/;
+  const filetypes = /mp4|mkv|mov|wmv|mp3|jpeg|png|jpg|svg|webp|avif/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
 
