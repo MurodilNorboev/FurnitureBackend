@@ -287,7 +287,7 @@ export class Products {
       await handleImageUpdate("image2", image2);
       await handleImageUpdate("image3", image3);
       await handleImageUpdate("image4", image4);
-      const updatedTodo = await NewTodo.findByIdAndUpdate(id, updated, {
+      const updatedTodo = await Product.findByIdAndUpdate(id, updated, {
         new: true,
         runValidators: true,
       });
