@@ -18,6 +18,6 @@ export const permissions = {
     "view_statistics",
     "delete_data",
   ],
-  [ADMIN]: ["manage_data", "view_statistics", "delete_data"],
+  [ADMIN]: ["manage_data1", "view_statistics", "delete_data"],
   [BASIC_ADMIN]: ["view_statistics"],
 };
