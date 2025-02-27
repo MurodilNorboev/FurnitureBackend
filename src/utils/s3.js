@@ -1,4 +1,4 @@
-import { S3Client } from '@aws-sdk/client-s3'
+import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 
 const news3Client = new S3Client({
@@ -30,6 +30,27 @@ export const sendFile = async (buffer, key) => {
     }
 }
 
+export const deleteFileFromS3 = async (key) => {
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: 'bdc26052-furniture',
+        Key: key,
+      });
+  
+      const response = await news3Client.send(command);
+  
+      if (response.$metadata.httpStatusCode === 204) {
+        console.log('File successfully deleted:', key);
+        return true; 
+      } else {
+        console.error('Failed to delete file:', key);
+        return false; 
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      throw error;
+    }
+  };
 
 
  

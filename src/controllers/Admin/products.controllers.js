@@ -7,6 +7,7 @@ import { MyFurCart } from "../../models/my-furCart/myFurCart.model.js";
 import moment from "moment";
 import { FurUser } from "../../models/Admin/user.models.js";
 import jwt from "jsonwebtoken";
+import { deleteFileFromS3 } from "../../utils/s3.js";
 
 export class Products {
   static productsall = asyncHandler(async (req, res) => {
