@@ -11,7 +11,7 @@ import { validate } from "../../validator/validator.js";
 import { authF } from "../../middleware/auts.middlewareFur.js";
 import checkRole from "../../middleware/role.middleware.js";
 
-router.post("/add", authF, checkRole('manage_data'), Products.productsall);
+router.post("/add", authF, checkRole('delete_data'), Products.productsall);
 router.get("/all", Products.product_get_all);
 router.put("/edit/:id", authF, checkRole('manage_data'), updataV(), validate, Products.productEdit);
 router.delete("/delete/:id", authF, checkRole('manage_data'), Products.delet);
