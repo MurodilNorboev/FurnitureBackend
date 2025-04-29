@@ -48,3 +48,8 @@ app.use(errorMiddleware);
 
 server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}!`));
 
+
+
+// agarda cookie dan foydalanmoqchi bolsam
+// import cookieParser from "cookie-parser";
+// app.use(cookieParser());

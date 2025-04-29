@@ -132,6 +132,25 @@ export class FurnitureUserController {
 
     const access_token = await JwtHelper.sign(user._id);
     res.status(StatusCodes.OK).json({ success: true, access_token });
+
+  //     // HTTPOnly cookie sifatida tokenni yuborish
+  // res.cookie("token", access_token, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production", // faqat HTTPSda ishlasin
+  //   sameSite: "Strict",
+  //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30 kun
+  // });
+
+  // // Javob
+  // res.status(StatusCodes.OK).json({
+  //   success: true,
+  //   message: "Login muvaffaqiyatli!",
+  //   user: {
+  //     id: user._id,
+  //     email: user.email,
+  //     role: user.role,
+  //   },
+
   });
 
   // == forgot password / reset password / change possword ==

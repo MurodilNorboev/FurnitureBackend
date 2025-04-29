@@ -6,6 +6,9 @@ import { FurUser } from "../models/Admin/user.models.js";
 import { User } from "../models/user/user.model.js";
 
 export const authF = asyncHandler(async (req, res, next) => {
+  // agarda  men tokenni header ya'ni local stroragedan emas cookiedan olmoqchi bolsam = 
+  // const token = req.cookies.token; // <-- cookie ichidan tokenni olamiz
+  
   const token = req.headers.authorization.split(" ")[1];
 
   if (!token) {
